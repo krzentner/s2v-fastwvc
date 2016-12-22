@@ -1,5 +1,5 @@
-#ifndef TYPE_CAST_H
-#define TYPE_CAST_H
+#ifndef ELEWISE_ADD_H
+#define ELEWISE_ADD_H
 
 #include "util/gnn_macros.h"
 #include "nn/factor.h"
@@ -10,18 +10,19 @@ namespace gnn
 {
 
 /**
- * @brief      operator used for casting type
+ * @brief      Operator: element-wise add of two or more tensors; broadcast only support
+ * 				two-tensor add
  *
  * @tparam     mode   { CPU/GPU }
- * @tparam     Dtype  { output type, float/double/int }
+ * @tparam     Dtype  { ele_type (float/double) }
  */
 template<typename mode, typename Dtype>
-class TypeCast : public Factor
+class ElewiseAdd : public Factor
 {
 public:
 	static std::string StrType()
 	{
-		return "TypeCast";
+		return "ElewiseAdd";
 	}
 
 	using OutType = std::shared_ptr< DTensorVar<mode, Dtype> >;
@@ -29,9 +30,7 @@ public:
 	/**
 	 * @brief      Creates an out variable.
 	 *
-	 * @return     return a tensor with same shape as input, but the output 
-	 * 				tensor has the data type specified by Dtype, which is 
-	 * 				independent of the data type from input tensor
+	 * @return     a tensor with the same shape as inputs
 	 */
 	OutType CreateOutVar()
 	{
@@ -43,16 +42,17 @@ public:
 	 * @brief      constructor
 	 *
 	 * @param[in]  _name     The name
-	 * @param[in]  _properr  whethre propagate error
+	 * @param[in]  _properr  The properr
 	 */
-	TypeCast(std::string _name, PropErr _properr = PropErr::T);
-	
+	ElewiseAdd(std::string _name, PropErr _properr = PropErr::T);
+
 	virtual void Forward(std::vector< std::shared_ptr<Variable> >& operands, 
 						 std::vector< std::shared_ptr<Variable> >& outputs) override;
 
+	virtual void Backward(std::vector< std::shared_ptr<Variable> >& operands, 
+						std::vector< bool >& isConst, 
+						std::vector< std::shared_ptr<Variable> >& outputs) override;
 };
 
 }
-
-
 #endif
