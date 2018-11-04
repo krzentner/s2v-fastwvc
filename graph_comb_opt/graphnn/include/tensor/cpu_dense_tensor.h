@@ -1,6 +1,8 @@
 #ifndef CPU_DENSE_TENSOR_H
 #define CPU_DENSE_TENSOR_H
 
+#include <functional>
+
 #include "tensor.h"
 #include "t_data.h"
 
