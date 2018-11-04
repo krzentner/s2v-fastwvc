@@ -1,0 +1,6 @@
+include_rules
+GNN_HOME=../../../graphnn
+CFLAGS+=-I$(GNN_HOME)/include
+GNN_LIB=$(GNN_HOME)/graphnn.a
+: foreach src/lib/*.cpp |> !cxx |> build/%B.o
+: src/mvc_lib.cpp build/*.o $(GNN_LIB) |> !cxx-dylib -L$(GNN_LIB) |> build/dll/libmvc.so

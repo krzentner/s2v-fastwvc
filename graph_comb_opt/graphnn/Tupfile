@@ -1,0 +1,6 @@
+include_rules
+: foreach src/nn/*.cpp |> !cxx |> build/%B.o
+: foreach src/tensor/*.cpp |> !cxx |> build/%B.o
+: foreach src/util/*.cpp |> !cxx |> build/%B.o
+: build/*.o |> !ar |> graphnn.a 
+: build/*.o |> !cxx-dylib |> graphnn.so

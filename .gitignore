@@ -128,3 +128,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Stuff for this project.
+.tup
