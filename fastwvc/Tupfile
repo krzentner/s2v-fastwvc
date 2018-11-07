@@ -1,0 +1,1 @@
+: mwvc.h mwvc.cpp |> g++ %f -o %o |> fastwvc
