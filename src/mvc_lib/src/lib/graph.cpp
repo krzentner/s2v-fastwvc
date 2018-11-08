@@ -3,10 +3,24 @@
 #include <iostream>
 #include <random>
 
-Graph::Graph() : num_nodes(0), num_edges(0)
+Graph::Graph() : num_nodes(0), num_edges(0), c_size(0), now_weight(0),
+  ave_weight(1), delta_total_weight(0), threshold(0 /* (int)(0.5 * v_num) */), p_scale(0.3)
 {
     edge_list.clear();
     adj_list.clear();
+    edge_weight.clear();
+    dscore.clear();
+    time_stamp.clear();
+    v_weight.clear();
+    v_edges.clear();
+    v_degree.clear();
+    v_in_c.clear();
+    remove_cand.clear();
+    index_in_remove_cand.clear();
+    uncov_stack.clear();
+    index_in_uncov_stack.clear();
+    conf_change.clear();
+    tabu_list.clear();
 }
 
 Graph::Graph(const int _num_nodes, const int _num_edges, const int* edges_from, const int* edges_to)
