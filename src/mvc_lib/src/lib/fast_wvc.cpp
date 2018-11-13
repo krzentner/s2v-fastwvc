@@ -112,22 +112,21 @@ Graph BuildInstance(string filename)
 void ResetRemoveCand(Graph &g)
 {
     int v;
-    int j = 0;
+
+    g.remove_cand.clear();
 
     for (v = 1; v < g.v_num + 1; v++)
     {
         if (g.v_in_c[v] == 1)
         {
-            g.remove_cand[j] = v;
-            g.index_in_remove_cand[v] = j;
-            j++;
+            g.index_in_remove_cand[v] = g.remove_cand.size();
+            g.remove_cand.push_back(v);
         }
         else
         {
             g.index_in_remove_cand[v] = 0;
         }
     }
-    g.remove_cand_size = j;
 }
 
 void Uncover(Graph &g, int e)
@@ -156,8 +155,8 @@ void Add(Graph &g, int v)
     g.dscore[v] = -g.dscore[v];
     g.now_weight += g.v_weight[v];
 
-    g.remove_cand[g.remove_cand_size] = v;
-    g.index_in_remove_cand[v] = g.remove_cand_size++;
+    g.index_in_remove_cand[v] = g.remove_cand.size();
+    g.remove_cand.push_back(v);
 
     for (i = 0; i < edge_count; i++)
     {
@@ -187,7 +186,8 @@ void Remove(Graph &g, int v)
     g.dscore[v] = -g.dscore[v];
     g.conf_change[v] = 0;
 
-    int last_remove_cand_v = g.remove_cand[--g.remove_cand_size];
+    int last_remove_cand_v = g.remove_cand.back();
+    g.remove_cand.pop_back();
     int index = g.index_in_remove_cand[v];
     g.remove_cand[index] = last_remove_cand_v;
     g.index_in_remove_cand[last_remove_cand_v] = index;
@@ -225,7 +225,7 @@ int UpdateTargetSize(Graph &g)
 
     if (g.dscore[best_remove_v] != 0)
     {
-        for (unsigned int i = 1; i < g.remove_cand_size; i++)
+        for (unsigned int i = 1; i < g.remove_cand.size(); i++)
         {
             v = g.remove_cand[i];
             if (g.dscore[v] == 0) break;
@@ -247,12 +247,12 @@ int ChooseRemoveV(Graph &g)
 {
     int i, v;
     double dscore_v, dscore_remove_v;
-    int remove_v = g.remove_cand[rand() % g.remove_cand_size];
+    int remove_v = g.remove_cand[rand() % g.remove_cand.size()];
     int to_try = 50;
 
     for (i = 1; i < to_try; i++)
     {
-        v = g.remove_cand[rand() % g.remove_cand_size];
+        v = g.remove_cand[rand() % g.remove_cand.size()];
         dscore_v = (double)g.v_weight[v] / (double)abs(g.dscore[v]);
         dscore_remove_v = (double)g.v_weight[remove_v] / (double)abs(g.dscore[remove_v]);
 
@@ -434,7 +434,7 @@ void UpdateBestSolution(Graph &g_best, Graph &g)
 void RemoveRedundant(Graph &g)
 {
     int v;
-    for (unsigned int i = 0; i < g.remove_cand_size; i++)
+    for (unsigned int i = 0; i < g.remove_cand.size(); i++)
     {
         v = g.remove_cand[i];
         if (g.v_in_c[v] == 1 && g.dscore[v] == 0)

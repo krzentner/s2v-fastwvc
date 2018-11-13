@@ -3,8 +3,8 @@
 #include <iostream>
 #include <random>
 
-Graph::Graph() : num_nodes(0), num_edges(0), c_size(0), remove_cand_size(0),
-  now_weight(0), ave_weight(1), delta_total_weight(0), threshold(0),
+Graph::Graph() : num_nodes(0), num_edges(0), c_size(0), now_weight(0),
+  ave_weight(1), delta_total_weight(0), threshold(0 /* (int)(0.5 * v_num) */),
   p_scale(0.3), seed(0), mode(0)
 {
     edge_list.clear();
