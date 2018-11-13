@@ -37,6 +37,8 @@ Graph BuildInstance(string filename)
     g.v_num = v_num;
     g.e_num = e_num;
 
+    g.threshold = (int)(0.5 * v_num);
+
     g.edge.resize(e_num, { 0, 0 });
     g.edge_weight.resize(e_num, 0);
     g.index_in_uncov_stack.resize(e_num, 0);
@@ -81,8 +83,8 @@ Graph BuildInstance(string filename)
 
     for (v = 1; v < v_num + 1; v++)
     {
-        g.v_adj[v] = std::vector<int>(0, g.v_degree[v]);
-        g.v_edges[v] = std::vector<int>(0, g.v_degree[v]);
+        g.v_adj[v] = std::vector<int>(g.v_degree[v], 0);
+        g.v_edges[v] = std::vector<int>(g.v_degree[v], 0);
     }
 
     int *v_degree_tmp = new int[v_num + 1];
@@ -107,129 +109,127 @@ Graph BuildInstance(string filename)
     return g;
 }
 
-/*
-
-void ResetRemoveCand()
+void ResetRemoveCand(Graph &g)
 {
     int v;
-    int j = 0;
 
-    for (v = 1; v < v_num + 1; v++)
+    g.remove_cand.clear();
+
+    for (v = 1; v < g.v_num + 1; v++)
     {
-        if (v_in_c[v] == 1)
+        if (g.v_in_c[v] == 1)
         {
-            remove_cand[j] = v;
-            index_in_remove_cand[v] = j;
-            j++;
+            g.index_in_remove_cand[v] = g.remove_cand.size();
+            g.remove_cand.push_back(v);
         }
         else
         {
-            index_in_remove_cand[v] = 0;
+            g.index_in_remove_cand[v] = 0;
         }
     }
-
-    remove_cand_size = j;
 }
 
-inline void Uncover(int e)
+void Uncover(Graph &g, int e)
 {
-    index_in_uncov_stack[e] = uncov_stack_fill_pointer;
-    push(e, uncov_stack);
+    g.index_in_uncov_stack[e] = g.uncov_stack.size();
+    g.uncov_stack.push_back(e);
 }
 
-inline void Cover(int e)
+void Cover(Graph &g, int e)
 {
     int index, last_uncov_edge;
-    last_uncov_edge = pop(uncov_stack);
-    index = index_in_uncov_stack[e];
-    uncov_stack[index] = last_uncov_edge;
-    index_in_uncov_stack[last_uncov_edge] = index;
+    last_uncov_edge = g.uncov_stack.back();
+    g.uncov_stack.pop_back();
+    index = g.index_in_uncov_stack[e];
+    g.uncov_stack[index] = last_uncov_edge;
+    g.index_in_uncov_stack[last_uncov_edge] = index;
 }
 
-void Add(int v)
+void Add(Graph &g, int v)
 {
     int i, e, n;
-    int edge_count = v_degree[v];
+    int edge_count = g.v_degree[v];
 
-    v_in_c[v] = 1;
-    c_size++;
-    dscore[v] = -dscore[v];
-    now_weight += v_weight[v];
+    g.v_in_c[v] = 1;
+    g.c_size++;
+    g.dscore[v] = -g.dscore[v];
+    g.now_weight += g.v_weight[v];
 
-    remove_cand[remove_cand_size] = v;
-    index_in_remove_cand[v] = remove_cand_size++;
+    g.index_in_remove_cand[v] = g.remove_cand.size();
+    g.remove_cand.push_back(v);
 
     for (i = 0; i < edge_count; i++)
     {
-        e = v_edges[v][i];
-        n = v_adj[v][i];
+        e = g.v_edges[v][i];
+        n = g.v_adj[v][i];
 
-        if (v_in_c[n] == 0)
+        if (g.v_in_c[n] == 0)
         {
-            dscore[n] -= edge_weight[e];
-            conf_change[n] = 1;
-            Cover(e);
+            g.dscore[n] -= g.edge_weight[e];
+            g.conf_change[n] = 1;
+            Cover(g, e);
         }
         else
         {
-            dscore[n] += edge_weight[e];
+            g.dscore[n] += g.edge_weight[e];
         }
     }
 }
 
-void Remove(int v)
+void Remove(Graph &g, int v)
 {
     int i, e, n;
-    int edge_count = v_degree[v];
+    int edge_count = g.v_degree[v];
 
-    v_in_c[v] = 0;
-    c_size--;
-    dscore[v] = -dscore[v];
-    conf_change[v] = 0;
+    g.v_in_c[v] = 0;
+    g.c_size--;
+    g.dscore[v] = -g.dscore[v];
+    g.conf_change[v] = 0;
 
-    int last_remove_cand_v = remove_cand[--remove_cand_size];
-    int index = index_in_remove_cand[v];
-    remove_cand[index] = last_remove_cand_v;
-    index_in_remove_cand[last_remove_cand_v] = index;
-    index_in_remove_cand[v] = 0;
+    int last_remove_cand_v = g.remove_cand.back();
+    g.remove_cand.pop_back();
+    int index = g.index_in_remove_cand[v];
+    g.remove_cand[index] = last_remove_cand_v;
+    g.index_in_remove_cand[last_remove_cand_v] = index;
+    g.index_in_remove_cand[v] = 0;
 
-    now_weight -= v_weight[v];
+    g.now_weight -= g.v_weight[v];
 
     for (i = 0; i < edge_count; i++)
     {
-        e = v_edges[v][i];
-        n = v_adj[v][i];
+        e = g.v_edges[v][i];
+        n = g.v_adj[v][i];
 
-        if (v_in_c[n] == 0)
+        if (g.v_in_c[n] == 0)
         {
-            dscore[n] += edge_weight[e];
-            conf_change[n] = 1;
-            Uncover(e);
+            g.dscore[n] += g.edge_weight[e];
+            g.conf_change[n] = 1;
+            Uncover(g, e);
         }
         else
         {
-            dscore[n] -= edge_weight[e];
+            g.dscore[n] -= g.edge_weight[e];
         }
     }
 }
 
-int UpdateTargetSize()
+int UpdateTargetSize(Graph &g)
 {
     int v;
     int best_remove_v;
     double best_dscore;
     double dscore_v;
 
-    best_remove_v = remove_cand[0];
-    best_dscore = (double)v_weight[best_remove_v] / (double)abs(dscore[best_remove_v]);
+    best_remove_v = g.remove_cand[0];
+    best_dscore = (double)g.v_weight[best_remove_v] / (double)abs(g.dscore[best_remove_v]);
 
-    if (dscore[best_remove_v] != 0)
+    if (g.dscore[best_remove_v] != 0)
     {
-        for (int i = 1; i < remove_cand_size; i++)
+        for (unsigned int i = 1; i < g.remove_cand.size(); i++)
         {
-            v = remove_cand[i];
-            if (dscore[v] == 0) break;
-            dscore_v = (double)v_weight[v] / (double)abs(dscore[v]);
+            v = g.remove_cand[i];
+            if (g.dscore[v] == 0) break;
+            dscore_v = (double)g.v_weight[v] / (double)abs(g.dscore[v]);
             if (dscore_v > best_dscore)
             {
                 best_dscore = dscore_v;
@@ -238,25 +238,25 @@ int UpdateTargetSize()
         }
     }
 
-    Remove(best_remove_v);
+    Remove(g, best_remove_v);
 
     return best_remove_v;
 }
 
-int ChooseRemoveV()
+int ChooseRemoveV(Graph &g)
 {
     int i, v;
     double dscore_v, dscore_remove_v;
-    int remove_v = remove_cand[rand() % remove_cand_size];
+    int remove_v = g.remove_cand[rand() % g.remove_cand.size()];
     int to_try = 50;
 
     for (i = 1; i < to_try; i++)
     {
-        v = remove_cand[rand() % remove_cand_size];
-        dscore_v = (double)v_weight[v] / (double)abs(dscore[v]);
-        dscore_remove_v = (double)v_weight[remove_v] / (double)abs(dscore[remove_v]);
+        v = g.remove_cand[rand() % g.remove_cand.size()];
+        dscore_v = (double)g.v_weight[v] / (double)abs(g.dscore[v]);
+        dscore_remove_v = (double)g.v_weight[remove_v] / (double)abs(g.dscore[remove_v]);
 
-        if (tabu_list[v] == 1)
+        if (g.tabu_list[v] == 1)
         {
             continue;
         }
@@ -268,7 +268,7 @@ int ChooseRemoveV()
         {
             remove_v = v;
         }
-        else if (time_stamp[v] < time_stamp[remove_v])
+        else if (g.time_stamp[v] < g.time_stamp[remove_v])
         {
             remove_v = v;
         }
@@ -276,24 +276,24 @@ int ChooseRemoveV()
     return remove_v;
 }
 
-int ChooseAddFromV()
+int ChooseAddFromV(Graph &g)
 {
     int v;
     int add_v = 0;
     double improvemnt = 0.0;
     double dscore_v;
 
-    for (v = 1; v < v_num + 1; v++)
+    for (v = 1; v < g.v_num + 1; v++)
     {
-        if (v_in_c[v] == 1)
+        if (g.v_in_c[v] == 1)
         {
             continue;
         }
-        if (conf_change[v] == 0)
+        if (g.conf_change[v] == 0)
         {
             continue;
         }
-        dscore_v = (double)dscore[v] / (double)v_weight[v];
+        dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
         if (dscore_v > improvemnt)
         {
             improvemnt = dscore_v;
@@ -301,7 +301,7 @@ int ChooseAddFromV()
         }
         else if (dscore_v == improvemnt)
         {
-            if (time_stamp[v] < time_stamp[add_v])
+            if (g.time_stamp[v] < g.time_stamp[add_v])
             {
                 add_v = v;
             }
@@ -310,29 +310,28 @@ int ChooseAddFromV()
     return add_v;
 }
 
-int ChooseAddV(int remove_v, int update_v = 0)
+int ChooseAddV(Graph &g, int remove_v, int update_v = 0)
 {
     int i, v;
     int add_v = 0;
     double improvemnt = 0.0;
     double dscore_v;
 
-    int tmp_degree = v_degree[remove_v];
+    int tmp_degree = g.v_degree[remove_v];
 
-    int degree_sum;
-    int *adjp = v_adj[remove_v];
+    std::vector<int> *adjp = &g.v_adj[remove_v];
     for (i = 0; i < tmp_degree; i++)
     {
-        v = adjp[i];
-        if (v_in_c[v] == 1)
+        v = (*adjp)[i];
+        if (g.v_in_c[v] == 1)
         {
             continue;
         }
-        if (conf_change[v] == 0)
+        if (g.conf_change[v] == 0)
         {
             continue;
         }
-        dscore_v = (double)dscore[v] / (double)v_weight[v];
+        dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
         if (dscore_v > improvemnt)
         {
             improvemnt = dscore_v;
@@ -340,16 +339,16 @@ int ChooseAddV(int remove_v, int update_v = 0)
         }
         else if (dscore_v == improvemnt)
         {
-            if (time_stamp[v] < time_stamp[add_v])
+            if (g.time_stamp[v] < g.time_stamp[add_v])
             {
                 add_v = v;
             }
         }
     }
     v = remove_v;
-    if (conf_change[v] == 1 && v_in_c[v] == 0)
+    if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
     {
-        dscore_v = (double)dscore[v] / (double)v_weight[v];
+        dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
         if (dscore_v > improvemnt)
         {
             improvemnt = dscore_v;
@@ -357,7 +356,7 @@ int ChooseAddV(int remove_v, int update_v = 0)
         }
         else if (dscore_v == improvemnt)
         {
-            if (time_stamp[v] < time_stamp[add_v])
+            if (g.time_stamp[v] < g.time_stamp[add_v])
             {
                 add_v = v;
             }
@@ -367,20 +366,20 @@ int ChooseAddV(int remove_v, int update_v = 0)
 
     if (update_v != 0)
     {
-        tmp_degree = v_degree[update_v];
-        adjp = v_adj[update_v];
+        tmp_degree = g.v_degree[update_v];
+        adjp = &g.v_adj[update_v];
         for (i = 0; i < tmp_degree; i++)
         {
-            v = adjp[i];
-            if (v_in_c[v] == 1)
+            v = (*adjp)[i];
+            if (g.v_in_c[v] == 1)
             {
                 continue;
             }
-            if (conf_change[v] == 0)
+            if (g.conf_change[v] == 0)
             {
                 continue;
             }
-            dscore_v = (double)dscore[v] / (double)v_weight[v];
+            dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
             if (dscore_v > improvemnt)
             {
                 improvemnt = dscore_v;
@@ -388,16 +387,16 @@ int ChooseAddV(int remove_v, int update_v = 0)
             }
             else if (dscore_v == improvemnt)
             {
-                if (time_stamp[v] < time_stamp[add_v])
+                if (g.time_stamp[v] < g.time_stamp[add_v])
                 {
                     add_v = v;
                 }
             }
         }
         v = update_v;
-        if (conf_change[v] == 1 && v_in_c[v] == 0)
+        if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
         {
-            dscore_v = (double)dscore[v] / (double)v_weight[v];
+            dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
             if (dscore_v > improvemnt)
             {
                 improvemnt = dscore_v;
@@ -405,7 +404,7 @@ int ChooseAddV(int remove_v, int update_v = 0)
             }
             else if (dscore_v == improvemnt)
             {
-                if (time_stamp[v] < time_stamp[add_v])
+                if (g.time_stamp[v] < g.time_stamp[add_v])
                 {
                     add_v = v;
                 }
@@ -417,94 +416,94 @@ int ChooseAddV(int remove_v, int update_v = 0)
     return add_v;
 }
 
-void UpdateBestSolution()
+void UpdateBestSolution(Graph &g_best, Graph &g)
 {
     int v;
 
-    if (now_weight < best_weight)
+    if (g.now_weight < g_best.now_weight)
     {
-        for (v = 1; v < v_num + 1; v++)
+        for (v = 1; v < g.v_num + 1; v++)
         {
-            best_v_in_c[v] = v_in_c[v];
+            g_best.v_in_c[v] = g.v_in_c[v];
         }
-        best_weight = now_weight;
-        best_c_size = c_size;
-        best_comp_time = TimeElapsed();
-        best_step = step;
+        g_best.now_weight = g.now_weight;
+        g_best.c_size = g.c_size;
     }
 }
 
-void RemoveRedundant()
+void RemoveRedundant(Graph &g)
 {
     int v;
-    for (int i = 0; i < remove_cand_size; i++)
+    for (unsigned int i = 0; i < g.remove_cand.size(); i++)
     {
-        v = remove_cand[i];
-        if (v_in_c[v] == 1 && dscore[v] == 0)
+        v = g.remove_cand[i];
+        if (g.v_in_c[v] == 1 && g.dscore[v] == 0)
         {
-            Remove(v);
+            Remove(g, v);
             i--;
         }
     }
 }
 
-void ConstructVC()
+void ConstructVC(Graph &g)
 {
     int e;
     int v1, v2;
     double v1dd, v2dd;
 
-    uncov_stack_fill_pointer = 0;
-    c_size = 0;
-    best_weight = (int)(~0U >> 1);
-    now_weight = 0;
+    g.uncov_stack.clear();
+    g.c_size = 0;
+    //best_weight = (int)(~0U >> 1);
+    g.now_weight = 0;
 
-    for (e = 0; e < e_num; e++)
+    for (e = 0; e < g.e_num; e++)
     {
-        v1 = edge[e].v1;
-        v2 = edge[e].v2;
+        v1 = g.edge[e].v1;
+        v2 = g.edge[e].v2;
 
-        if (v_in_c[v1] == 0 && v_in_c[v2] == 0)
+        if (g.v_in_c[v1] == 0 && g.v_in_c[v2] == 0)
         {
-            v1dd = (double)v_degree[v1] / (double)v_weight[v1];
-            v2dd = (double)v_degree[v2] / (double)v_weight[v2];
+            v1dd = (double)g.v_degree[v1] / (double)g.v_weight[v1];
+            v2dd = (double)g.v_degree[v2] / (double)g.v_weight[v2];
             if (v1dd > v2dd)
             {
-                v_in_c[v1] = 1;
-                now_weight += v_weight[v1];
+                g.v_in_c[v1] = 1;
+                g.now_weight += g.v_weight[v1];
             }
             else
             {
-                v_in_c[v2] = 1;
-                now_weight += v_weight[v2];
+                g.v_in_c[v2] = 1;
+                g.now_weight += g.v_weight[v2];
             }
-            c_size++;
+            g.c_size++;
         }
     }
 
-    int *save_v_in_c = new int[v_num + 1];
-    memcpy(save_v_in_c, v_in_c, sizeof(int) * (v_num + 1));
-    int save_c_size = c_size;
-    llong save_weight = now_weight;
+    std::vector<int> save_v_in_c = g.v_in_c;
+
+    int save_c_size = g.c_size;
+    long long save_weight = g.now_weight;
 
     int times = 50;
-    vector<int> blocks(e_num / 1024 + 1);
-    for (int i = 0; i < e_num / 1024 + 1; i++)
+    vector<int> blocks(g.e_num / 1024 + 1);
+    for (int i = 0; i < g.e_num / 1024 + 1; i++)
     {
         blocks[i] = i;
     }
 
     while (times-- > 0)
     {
-        fill_n(v_in_c, v_num + 1, 0);
-        c_size = 0;
-        now_weight = 0;
-        shuffle(blocks.begin(), blocks.end(), default_random_engine(seed));
+        g.v_in_c.clear();
+        g.v_in_c.resize(g.v_num + 1, 0);
+
+        g.c_size = 0;
+        g.now_weight = 0;
+        shuffle(blocks.begin(), blocks.end(), default_random_engine(g.seed));
 
         for (auto &block : blocks)
         {
             auto begin = block * 1024;
-            auto end = block == e_num / 1024 ? e_num : begin + 1024;
+            auto end = block == g.e_num / 1024 ? g.e_num : begin + 1024;
             int tmpsize = end - begin + 1;
             vector<int> idx(tmpsize);
             for (int i = begin; i < end; i++)
@@ -514,74 +513,72 @@ void ConstructVC()
             while (tmpsize > 0)
             {
                 int i = rand() % tmpsize;
-                Edge e = edge[idx[i]];
+                Edge e = g.edge[idx[i]];
                 v1 = e.v1;
                 v2 = e.v2;
                 swap(idx[i], idx[--tmpsize]);
-                if (v_in_c[v1] == 0 && v_in_c[v2] == 0)
+                if (g.v_in_c[v1] == 0 && g.v_in_c[v2] == 0)
                 {
-                    v1dd = (double)v_degree[v1] / (double)v_weight[v1];
-                    v2dd = (double)v_degree[v2] / (double)v_weight[v2];
+                    v1dd = (double)g.v_degree[v1] / (double)g.v_weight[v1];
+                    v2dd = (double)g.v_degree[v2] / (double)g.v_weight[v2];
                     if (v1dd > v2dd)
                     {
-                        v_in_c[v1] = 1;
-                        now_weight += v_weight[v1];
+                        g.v_in_c[v1] = 1;
+                        g.now_weight += g.v_weight[v1];
                     }
                     else
                     {
-                        v_in_c[v2] = 1;
-                        now_weight += v_weight[v2];
+                        g.v_in_c[v2] = 1;
+                        g.now_weight += g.v_weight[v2];
                     }
-                    c_size++;
+                    g.c_size++;
                 }
             }
         }
-        if (now_weight < save_weight)
+        if (g.now_weight < save_weight)
         {
-            save_weight = now_weight;
-            save_c_size = c_size;
-            memcpy(save_v_in_c, v_in_c, sizeof(int) * (v_num + 1));
+            save_weight = g.now_weight;
+            save_c_size = g.c_size;
+            save_v_in_c = g.v_in_c;
         }
     }
 
-    now_weight = save_weight;
-    c_size = save_c_size;
-    memcpy(v_in_c, save_v_in_c, sizeof(int) * (v_num + 1));
-    delete[] save_v_in_c;
+    g.now_weight = save_weight;
+    g.c_size = save_c_size;
+    g.v_in_c = save_v_in_c;
 
-    for (e = 0; e < e_num; e++)
+    for (e = 0; e < g.e_num; e++)
     {
-        v1 = edge[e].v1;
-        v2 = edge[e].v2;
+        v1 = g.edge[e].v1;
+        v2 = g.edge[e].v2;
 
-        if (v_in_c[v1] == 1 && v_in_c[v2] == 0)
+        if (g.v_in_c[v1] == 1 && g.v_in_c[v2] == 0)
         {
-            dscore[v1] -= edge_weight[e];
+            g.dscore[v1] -= g.edge_weight[e];
         }
-        else if (v_in_c[v2] == 1 && v_in_c[v1] == 0)
+        else if (g.v_in_c[v2] == 1 && g.v_in_c[v1] == 0)
         {
-            dscore[v2] -= edge_weight[e];
+            g.dscore[v2] -= g.edge_weight[e];
         }
     }
 
-    ResetRemoveCand();
-    for (int v = 1; v < v_num + 1; v++)
+    ResetRemoveCand(g);
+    for (int v = 1; v < g.v_num + 1; v++)
     {
-        if (v_in_c[v] == 1 && dscore[v] == 0)
+        if (g.v_in_c[v] == 1 && g.dscore[v] == 0)
         {
-            Remove(v);
+            Remove(g, v);
         }
     }
-    UpdateBestSolution();
 }
 
-int CheckSolution()
+int CheckSolution(Graph &g)
 {
     int e;
 
-    for (e = 0; e < e_num; ++e)
+    for (e = 0; e < g.e_num; ++e)
     {
-        if (best_v_in_c[edge[e].v1] != 1 && best_v_in_c[edge[e].v2] != 1)
+        if (g.v_in_c[g.edge[e].v1] != 1 && g.v_in_c[g.edge[e].v2] != 1)
         {
             cout << ", uncovered edge " << e;
             return 0;
@@ -590,116 +587,118 @@ int CheckSolution()
     return 1;
 }
 
-void ForgetEdgeWeights()
+void ForgetEdgeWeights(Graph &g)
 {
     int v, e;
     int new_total_weitght = 0;
 
-    for (v = 1; v < v_num + 1; v++)
+    for (v = 1; v < g.v_num + 1; v++)
     {
-        dscore[v] = 0;
+        g.dscore[v] = 0;
     }
 
-    for (e = 0; e < e_num; e++)
+    for (e = 0; e < g.e_num; e++)
     {
-        edge_weight[e] = edge_weight[e] * p_scale;
-        new_total_weitght += edge_weight[e];
+        g.edge_weight[e] = g.edge_weight[e] * g.p_scale;
+        new_total_weitght += g.edge_weight[e];
 
-        if (v_in_c[edge[e].v1] + v_in_c[edge[e].v2] == 0)
+        if (g.v_in_c[g.edge[e].v1] + g.v_in_c[g.edge[e].v2] == 0)
         {
-            dscore[edge[e].v1] += edge_weight[e];
-            dscore[edge[e].v2] += edge_weight[e];
+            g.dscore[g.edge[e].v1] += g.edge_weight[e];
+            g.dscore[g.edge[e].v2] += g.edge_weight[e];
         }
-        else if (v_in_c[edge[e].v1] + v_in_c[edge[e].v2] == 1)
+        else if (g.v_in_c[g.edge[e].v1] + g.v_in_c[g.edge[e].v2] == 1)
         {
-            if (v_in_c[edge[e].v1] == 1)
+            if (g.v_in_c[g.edge[e].v1] == 1)
             {
-                dscore[edge[e].v1] -= edge_weight[e];
+                g.dscore[g.edge[e].v1] -= g.edge_weight[e];
             }
             else
             {
-                dscore[edge[e].v2] -= edge_weight[e];
+                g.dscore[g.edge[e].v2] -= g.edge_weight[e];
             }
         }
     }
-    ave_weight = new_total_weitght / e_num;
+    g.ave_weight = new_total_weitght / g.e_num;
 }
 
-void UpdateEdgeWeight()
+void UpdateEdgeWeight(Graph &g)
 {
-    int i, e;
+    unsigned int i, e;
 
-    for (i = 0; i < uncov_stack_fill_pointer; i++)
+    for (i = 0; i < g.uncov_stack.size(); i++)
     {
-        e = uncov_stack[i];
-        edge_weight[e] += 1;
-        dscore[edge[e].v1] += 1;
-        dscore[edge[e].v2] += 1;
-        if (mode % 2 == 1)
+        e = g.uncov_stack[i];
+        g.edge_weight[e] += 1;
+        g.dscore[g.edge[e].v1] += 1;
+        g.dscore[g.edge[e].v2] += 1;
+        if (g.mode % 2 == 1)
         {
-            conf_change[edge[e].v1] = 1;
-            conf_change[edge[e].v2] = 1;
+            g.conf_change[g.edge[e].v1] = 1;
+            g.conf_change[g.edge[e].v2] = 1;
         }
     }
 
-    delta_total_weight += uncov_stack_fill_pointer;
+    g.delta_total_weight += g.uncov_stack.size();
 
-    if (mode / 2 == 1)
+    if (g.mode / 2 == 1)
     {
-        if (delta_total_weight >= e_num)
+        if (g.delta_total_weight >= g.e_num)
         {
-            ave_weight += 1;
-            delta_total_weight -= e_num;
+            g.ave_weight += 1;
+            g.delta_total_weight -= g.e_num;
         }
 
-        if (ave_weight >= threshold)
+        if (g.ave_weight >= g.threshold)
         {
-            ForgetEdgeWeights();
+            ForgetEdgeWeights(g);
         }
     }
 }
 
-void LocalSearch()
+void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline)
 {
     int add_v, remove_v, update_v = 0;
-    step = 1;
-    try_step = 100;
+    int step = 1;
+    int try_step = 100;
 
-    ave_weight = 1;
-    delta_total_weight = 0;
-    p_scale = 0.3;
-    threshold = (int)(0.5 * v_num);
+    g_best.ave_weight = 1;
+    g_best.delta_total_weight = 0;
+    g_best.p_scale = 0.3;
+    g_best.threshold = (int)(0.5 * g_best.v_num);
+
+    Graph g = g_best;
 
     while (true)
     {
-        UpdateBestSolution();
-        update_v = UpdateTargetSize();
+        UpdateBestSolution(g_best, g);
+        update_v = UpdateTargetSize(g);
 
         if (step % try_step == 0)
         {
-            if (TimeElapsed() >= cutoff_time)
+            if (chrono::steady_clock::now() >= deadline)
             {
                 return;
             }
         }
 
-        remove_v = ChooseRemoveV();
-        Remove(remove_v);
-        time_stamp[remove_v] = step;
+        remove_v = ChooseRemoveV(g);
+        Remove(g, remove_v);
+        g.time_stamp[remove_v] = step;
 
-        fill_n(tabu_list, v_num + 1, 0);
+        g.tabu_list.clear();
+        g.tabu_list.resize(g.v_num + 1, 0);
 
-        while (uncov_stack_fill_pointer > 0)
+        while (g.uncov_stack.size() > 0)
         {
-            add_v = ChooseAddV(remove_v, update_v);
-            Add(add_v);
-            UpdateEdgeWeight();
-            tabu_list[add_v] = 1;
-            time_stamp[add_v] = step;
+            add_v = ChooseAddV(g, remove_v, update_v);
+            Add(g, add_v);
+            UpdateEdgeWeight(g);
+            g.tabu_list[add_v] = 1;
+            g.time_stamp[add_v] = step;
         }
-        RemoveRedundant();
+        RemoveRedundant(g);
         step++;
         update_v = 0;
     }
 }
-*/

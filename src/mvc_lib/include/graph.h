@@ -58,6 +58,9 @@ public:
     int delta_total_weight;
     int threshold;
     double p_scale;
+
+    unsigned int seed;
+    int mode;
 };
 
 class GSet

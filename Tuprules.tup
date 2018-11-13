@@ -1,6 +1,7 @@
 MKL_LIB_PATH=@(MKL_PATH)/lib/intel64
 MKL_LINK_FLAGS=-L$(MKL_LIB_PATH) -lm -lmkl_rt -ltbb
-CFLAGS = -Wall -fPIC -I include -I @(MKL_PATH)/include
+CFLAGS = -Wall -fPIC -I include -I @(MKL_PATH)/include @(CFLAGS)
 !cxx = |> ^ CXX %f^ g++ -c %f -o %o $(CFLAGS) |>
 !cxx-dylib = |> ^ LIB %o ^ g++ -shared $(CFLAGS) -o %o %f $(MKL_LINK_FLAGS) |>
 !ar = |> ^ AR %o ^ ar rcs %o %f |>
+.gitignore
