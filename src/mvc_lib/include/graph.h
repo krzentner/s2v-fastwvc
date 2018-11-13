@@ -41,6 +41,9 @@ public:
     int c_size;
     std::vector< int > v_in_c;
     std::vector< int > remove_cand;
+    // remove_cand is often read "out of bounds", so we keep a separate size
+    // field.
+    unsigned int remove_cand_size;
     std::vector< int > index_in_remove_cand;
     long long now_weight;
 
