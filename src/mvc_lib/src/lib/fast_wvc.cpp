@@ -40,9 +40,9 @@ Graph BuildInstance(string filename)
     g.threshold = (int)(0.5 * v_num);
 
     g.edge.resize(e_num, { 0, 0 });
-    g.edge_weight.resize(e_num, 0);
     g.index_in_uncov_stack.resize(e_num, 0);
     // Handled below:
+    // g.edge_weight.resize(e_num, 1);
     // g.dscore.resize(v_num + 1, 0);
     // g.time_stamp.resize(v_num + 1, 0);
     g.v_edges.resize(v_num + 1, std::vector<int>());
@@ -54,9 +54,9 @@ Graph BuildInstance(string filename)
     g.tabu_list.resize(v_num + 1, 0);
     g.v_in_c.resize(v_num + 1, 0);
     g.dscore.resize(v_num + 1, 0);
-    g.conf_change.resize(v_num + 1, 0);
+    g.conf_change.resize(v_num + 1, 1);
     g.time_stamp.resize(v_num + 1, 0);
-    g.edge_weight.resize(v_num + 1, 0);
+    g.edge_weight.resize(e_num, 1);
 
     for (v = 1; v < v_num + 1; v++)
     {
