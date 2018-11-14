@@ -28,85 +28,27 @@ Graph BuildInstance(string filename)
     }
 
     int v_num, e_num;
-    Graph g = Graph();
     infile >> sign >> tmp >> v_num >> e_num;
+    std::vector<int> v_weight(v_num, 0);
 
-    g.num_nodes = g.v_num;
-    g.num_edges = g.e_num;
-
-    g.v_num = v_num;
-    g.e_num = e_num;
-
-    g.threshold = (int)(0.5 * v_num);
-
-    g.edge.resize(e_num, { 0, 0 });
-    g.index_in_uncov_stack.resize(e_num, 0);
-    // Handled below:
-    // g.edge_weight.resize(e_num, 1);
-    // g.dscore.resize(v_num + 1, 0);
-    // g.time_stamp.resize(v_num + 1, 0);
-    g.v_edges.resize(v_num + 1, std::vector<int>());
-    g.v_weight.resize(v_num + 1, 0);
-    g.remove_cand.resize(v_num + 1, 0);
-    g.index_in_remove_cand.resize(v_num + 1, 0);
-
-    g.v_degree.resize(v_num + 1, 0);
-    g.tabu_list.resize(v_num + 1, 0);
-    g.v_in_c.resize(v_num + 1, 0);
-    g.dscore.resize(v_num + 1, 0);
-    g.conf_change.resize(v_num + 1, 1);
-    g.time_stamp.resize(v_num + 1, 0);
-    g.edge_weight.resize(e_num, 1);
-
-    for (v = 1; v < v_num + 1; v++)
+    for (v = 0; v < v_num; v++)
     {
-        infile >> sign >> tmp >> g.v_weight[v];
+        infile >> sign >> tmp >> v_weight[v];
     }
+    std::vector<int> edges_from;
+    std::vector<int> edges_to;
 
     for (e = 0; e < e_num; e++)
     {
         infile >> tmp >> v1 >> v2;
-        g.v_degree[v1]++;
-        g.v_degree[v2]++;
 
-        g.edge[e].v1 = v1;
-        g.edge[e].v2 = v2;
+        // Translate from base 1 to base 0 indexing.
+        edges_from.push_back(v1 - 1);
+        edges_to.push_back(v2 - 1);
     }
     infile.close();
 
-    g.v_adj.resize(v_num + 1, std::vector<int>());
-
-    g.v_adj[0] = std::vector<int>();
-    g.v_edges[0] = std::vector<int>();
-
-    // TODO(krzentner): Replace this with appending to v_edges and v_adj.
-
-    for (v = 1; v < v_num + 1; v++)
-    {
-        g.v_adj[v] = std::vector<int>(g.v_degree[v], 0);
-        g.v_edges[v] = std::vector<int>(g.v_degree[v], 0);
-    }
-
-    int *v_degree_tmp = new int[v_num + 1];
-    fill_n(v_degree_tmp, v_num + 1, 0);
-
-    for (e = 0; e < e_num; e++)
-    {
-        v1 = g.edge[e].v1;
-        v2 = g.edge[e].v2;
-
-        g.v_edges[v1][v_degree_tmp[v1]] = e;
-        g.v_edges[v2][v_degree_tmp[v2]] = e;
-
-        g.v_adj[v1][v_degree_tmp[v1]] = v2;
-        g.v_adj[v2][v_degree_tmp[v2]] = v1;
-
-        v_degree_tmp[v1]++;
-        v_degree_tmp[v2]++;
-    }
-    delete[] v_degree_tmp;
-
-    return g;
+    return Graph(v_num, e_num, edges_from.data(), edges_to.data(), v_weight.data());
 }
 
 void ResetRemoveCand(Graph &g)
@@ -115,7 +57,7 @@ void ResetRemoveCand(Graph &g)
 
     g.remove_cand.clear();
 
-    for (v = 1; v < g.v_num + 1; v++)
+    for (v = 0; v < g.v_num; v++)
     {
         if (g.v_in_c[v] == 1)
         {
@@ -283,7 +225,7 @@ int ChooseAddFromV(Graph &g)
     double improvemnt = 0.0;
     double dscore_v;
 
-    for (v = 1; v < g.v_num + 1; v++)
+    for (v = 0; v < g.v_num; v++)
     {
         if (g.v_in_c[v] == 1)
         {
@@ -422,7 +364,7 @@ void UpdateBestSolution(Graph &g_best, Graph &g)
 
     if (g.now_weight < g_best.now_weight)
     {
-        for (v = 1; v < g.v_num + 1; v++)
+        for (v = 0; v < g.v_num; v++)
         {
             g_best.v_in_c[v] = g.v_in_c[v];
         }
@@ -494,7 +436,7 @@ void ConstructVC(Graph &g)
     while (times-- > 0)
     {
         g.v_in_c.clear();
-        g.v_in_c.resize(g.v_num + 1, 0);
+        g.v_in_c.resize(g.v_num, 0);
 
         g.c_size = 0;
         g.now_weight = 0;
@@ -563,7 +505,7 @@ void ConstructVC(Graph &g)
     }
 
     ResetRemoveCand(g);
-    for (int v = 1; v < g.v_num + 1; v++)
+    for (int v = 0; v < g.v_num; v++)
     {
         if (g.v_in_c[v] == 1 && g.dscore[v] == 0)
         {
@@ -592,7 +534,7 @@ void ForgetEdgeWeights(Graph &g)
     int v, e;
     int new_total_weitght = 0;
 
-    for (v = 1; v < g.v_num + 1; v++)
+    for (v = 0; v < g.v_num; v++)
     {
         g.dscore[v] = 0;
     }
@@ -687,7 +629,7 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline)
         g.time_stamp[remove_v] = step;
 
         g.tabu_list.clear();
-        g.tabu_list.resize(g.v_num + 1, 0);
+        g.tabu_list.resize(g.v_num, 0);
 
         while (g.uncov_stack.size() > 0)
         {
