@@ -62,9 +62,9 @@ int UpdateSnapshot()
     return 0;
 }
 
-int InsertGraph(bool isTest, const int g_id, const int num_nodes, const int num_edges, const int* edges_from, const int* edges_to)
+int InsertGraph(bool isTest, const int g_id, const int num_nodes, const int num_edges, const int* edges_from, const int* edges_to, const int* node_weights)
 {
-    auto g = std::make_shared<Graph>(num_nodes, num_edges, edges_from, edges_to);
+    auto g = std::make_shared<Graph>(num_nodes, num_edges, edges_from, edges_to, node_weights);
     if (isTest)
         GSetTest.InsertGraph(g_id, g);
     else

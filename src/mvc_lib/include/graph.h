@@ -18,8 +18,6 @@ public:
 
     Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
           const int* edges_to, const int* vertex_weights);
-    Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
-          const int* edges_to);
     int num_nodes;
     int num_edges;
     std::vector< std::vector< int > > adj_list;

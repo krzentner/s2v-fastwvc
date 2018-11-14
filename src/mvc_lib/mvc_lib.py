@@ -23,13 +23,20 @@ class MvcLib(object):
         edges = g.edges()
         e_list_from = (ctypes.c_int * len(edges))()
         e_list_to = (ctypes.c_int * len(edges))()
+        nodes = g.nodes()
+        v_weights = (ctypes.c_int * len(nodes))()
 
         if len(edges):
             a, b = zip(*edges)        
             e_list_from[:] = a
             e_list_to[:] = b
 
-        return (len(g.nodes()), len(edges), ctypes.cast(e_list_from, ctypes.c_void_p), ctypes.cast(e_list_to, ctypes.c_void_p)) 
+        for n in nodes:
+            v_weights[n] = nodes[n]['weight']
+
+        return (len(g.nodes()), len(edges), ctypes.cast(e_list_from,
+                ctypes.c_void_p), ctypes.cast(e_list_to, ctypes.c_void_p),
+                ctypes.cast(v_weights, ctypes.c_void_p)) 
 
     def TakeSnapshot(self):
         self.lib.UpdateSnapshot()
@@ -39,7 +46,7 @@ class MvcLib(object):
         self.lib.ClearTrainGraphs()
 
     def InsertGraph(self, g, is_test):
-        n_nodes, n_edges, e_froms, e_tos = self.__CtypeNetworkX(g)
+        n_nodes, n_edges, e_froms, e_tos, v_weights = self.__CtypeNetworkX(g)
         if is_test:
             t = self.ngraph_test
             self.ngraph_test += 1
@@ -47,7 +54,7 @@ class MvcLib(object):
             t = self.ngraph_train
             self.ngraph_train += 1
 
-        self.lib.InsertGraph(is_test, t, n_nodes, n_edges, e_froms, e_tos)
+        self.lib.InsertGraph(is_test, t, n_nodes, n_edges, e_froms, e_tos, v_weights)
     
     def LoadModel(self, path_to_model):
         p = ctypes.cast(path_to_model, ctypes.c_char_p)

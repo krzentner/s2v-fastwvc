@@ -15,6 +15,8 @@ n_valid = 100
 def gen_graph(opt):
     max_n = int(opt['max_n'])
     min_n = int(opt['min_n'])
+    max_w = int(opt['max_w'])
+    min_w = int(opt['min_w'])
     cur_n = np.random.randint(max_n - min_n + 1) + min_n
     if opt['g_type'] == 'erdos_renyi':
         g = nx.erdos_renyi_graph(n = cur_n, p = 0.15)
@@ -22,6 +24,8 @@ def gen_graph(opt):
         g = nx.powerlaw_cluster_graph(n = cur_n, m = 4, p = 0.05)
     elif opt['g_type'] == 'barabasi_albert':
         g = nx.barabasi_albert_graph(n = cur_n, m = 4)
+    nx.set_node_attributes(g, dict(zip(range(cur_n), np.random.randint(min_w, max_w, cur_n))),
+                           'weight')
     return g
 
 def gen_new_graphs(opt):

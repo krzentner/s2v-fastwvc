@@ -23,12 +23,6 @@ Graph::Graph() : num_nodes(0), num_edges(0), c_size(0), now_weight(0),
     conf_change.clear();
     tabu_list.clear();
 }
-Graph::Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
-             const int* edges_to)
-{
-  std::vector<int> vertex_weights(_num_nodes, 0);
-  Graph(_num_nodes, _num_edges, edges_from, edges_to, vertex_weights.data());
-}
 
 Graph::Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
              const int* edges_to, const int* vertex_weights)
