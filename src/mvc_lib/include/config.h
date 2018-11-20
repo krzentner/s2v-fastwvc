@@ -40,38 +40,38 @@ struct cfg
     {
         for (int i = 1; i < argc; i += 2)
         {
-		    if (strcmp(argv[i], "-learning_rate") == 0)
-		        learning_rate = atof(argv[i + 1]);
+            if (strcmp(argv[i], "-learning_rate") == 0)
+                learning_rate = atof(argv[i + 1]);
             if (strcmp(argv[i], "-max_bp_iter") == 0)
                 max_bp_iter = atoi(argv[i + 1]);        
             if (strcmp(argv[i], "-dev_id") == 0)
                 dev_id = atoi(argv[i + 1]);
-		    if (strcmp(argv[i], "-embed_dim") == 0)
-			    embed_dim = atoi(argv[i + 1]); 
-		    if (strcmp(argv[i], "-reg_hidden") == 0)
-			    reg_hidden = atoi(argv[i + 1]);
+            if (strcmp(argv[i], "-embed_dim") == 0)
+                embed_dim = atoi(argv[i + 1]); 
+            if (strcmp(argv[i], "-reg_hidden") == 0)
+                reg_hidden = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-max_n") == 0)
-			    max_n = atoi(argv[i + 1]);
+                max_n = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-min_n") == 0)
-			    min_n = atoi(argv[i + 1]);
+                min_n = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-mem_size") == 0)
-			    mem_size = atoi(argv[i + 1]);
+                mem_size = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-num_env") == 0)
-			    num_env = atoi(argv[i + 1]);                
+                num_env = atoi(argv[i + 1]);                
             if (strcmp(argv[i], "-n_step") == 0)
-			    n_step = atoi(argv[i + 1]);                
-    		if (strcmp(argv[i], "-batch_size") == 0)
-	       		batch_size = atoi(argv[i + 1]);
+                n_step = atoi(argv[i + 1]);                
+            if (strcmp(argv[i], "-batch_size") == 0)
+                batch_size = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-max_iter") == 0)
-	       		max_iter = atoi(argv[i + 1]);                   
-    		if (strcmp(argv[i], "-l2") == 0)
-    			l2_penalty = atof(argv[i + 1]);            
+                max_iter = atoi(argv[i + 1]);                   
+            if (strcmp(argv[i], "-l2") == 0)
+                l2_penalty = atof(argv[i + 1]);            
             if (strcmp(argv[i], "-w_scale") == 0)
                 w_scale = atof(argv[i + 1]);
-    		if (strcmp(argv[i], "-momentum") == 0)
-    			momentum = atof(argv[i + 1]);
-    		if (strcmp(argv[i], "-save_dir") == 0)
-    			save_dir = argv[i + 1];
+            if (strcmp(argv[i], "-momentum") == 0)
+                momentum = atof(argv[i + 1]);
+            if (strcmp(argv[i], "-save_dir") == 0)
+                save_dir = argv[i + 1];
         }
 
         if (n_step <= 0)
@@ -87,10 +87,10 @@ struct cfg
         std::cerr << "max_bp_iter = " << max_bp_iter << std::endl;
         std::cerr << "batch_size = " << batch_size << std::endl;        
         std::cerr << "embed_dim = " << embed_dim << std::endl;        
-    	std::cerr << "learning_rate = " << learning_rate << std::endl;
+        std::cerr << "learning_rate = " << learning_rate << std::endl;
         std::cerr << "w_scale = " << w_scale << std::endl;
-    	std::cerr << "l2_penalty = " << l2_penalty << std::endl;
-    	std::cerr << "momentum = " << momentum << std::endl;    	
+        std::cerr << "l2_penalty = " << l2_penalty << std::endl;
+        std::cerr << "momentum = " << momentum << std::endl;        
     }
 };
 
