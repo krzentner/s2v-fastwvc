@@ -17,6 +17,18 @@ void MvcEnv::s0(std::shared_ptr<Graph> _g)
 
 double MvcEnv::step(int a)
 {
+    state_seq.push_back(action_list);
+    action_list.push_back(a);
+
+    double reward = stepInner(a);
+
+    reward_seq.push_back(reward);
+    sum_rewards.push_back(reward);
+    return reward;
+}
+
+double MvcEnv::stepInner(int a)
+{
     // We never record the best solution so far. It's not completely clear how
     // a "best solution so far" fits into the s2v framework.
     // In greedy algorithms, there's just a current state, which is always an

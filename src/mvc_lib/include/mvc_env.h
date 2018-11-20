@@ -24,6 +24,8 @@ public:
     virtual bool isTerminal() override;
 
     virtual double getReward() override;
+
+    double stepInner(int a);
     FastWVCActionType next_action_type;
     int update_v;
     int current_step;
