@@ -19,11 +19,11 @@ void QNet::BuildNet()
     auto action_select = add_const< SpTensorVar<mode, Dtype> >(fg, "act_select", true);
     auto rep_global = add_const< SpTensorVar<mode, Dtype> >(fg, "rep_global", true);
 
-	auto n2nsum_param = af< Node2NodeMsgPass<mode, Dtype> >(fg, {graph});
-	auto subgsum_param = af< SubgraphMsgPass<mode, Dtype> >(fg, {graph});
+    auto n2nsum_param = af< Node2NodeMsgPass<mode, Dtype> >(fg, {graph});
+    auto subgsum_param = af< SubgraphMsgPass<mode, Dtype> >(fg, {graph});
 
-	auto w_n2l = add_diff<DTensorVar>(model, "input-node-to-latent", {2, cfg::embed_dim});
-	auto p_node_conv = add_diff< DTensorVar >(model, "linear-node-conv", {cfg::embed_dim, cfg::embed_dim});
+    auto w_n2l = add_diff<DTensorVar>(model, "input-node-to-latent", {2, cfg::embed_dim});
+    auto p_node_conv = add_diff< DTensorVar >(model, "linear-node-conv", {cfg::embed_dim, cfg::embed_dim});
     std::shared_ptr< DTensorVar<mode, Dtype> > h1_weight, h2_weight, last_w;
 
     if (cfg::reg_hidden > 0)
@@ -39,30 +39,30 @@ void QNet::BuildNet()
         last_w = h1_weight;
     }
 
-	w_n2l->value.SetRandN(0, cfg::w_scale);
-	p_node_conv->value.SetRandN(0, cfg::w_scale);
-	h1_weight->value.SetRandN(0, cfg::w_scale);
+    w_n2l->value.SetRandN(0, cfg::w_scale);
+    p_node_conv->value.SetRandN(0, cfg::w_scale);
+    h1_weight->value.SetRandN(0, cfg::w_scale);
     fg.AddParam(w_n2l);
     fg.AddParam(p_node_conv);
     fg.AddParam(h1_weight);
 
-	auto node_input = add_const< DTensorVar<mode, Dtype> >(fg, "node_feat", true);
-	auto label = add_const< DTensorVar<mode, Dtype> >(fg, "label", true);
+    auto node_input = add_const< DTensorVar<mode, Dtype> >(fg, "node_feat", true);
+    auto label = add_const< DTensorVar<mode, Dtype> >(fg, "label", true);
 
-	auto input_message = af<MatMul>(fg, {node_input, w_n2l});
-	auto input_potential_layer = af<ReLU>(fg, {input_message}); 
-	int lv = 0;
-	auto cur_message_layer = input_potential_layer;
-	while (lv < cfg::max_bp_iter)
-	{
-		lv++;
-		auto n2npool = af<MatMul>(fg, {n2nsum_param, cur_message_layer});
-		auto node_linear = af<MatMul>(fg, {n2npool, p_node_conv});
-		auto merged_linear = af<ElewiseAdd>(fg, {node_linear, input_message});
-		cur_message_layer = af<ReLU>(fg, {merged_linear}); 
-	}
+    auto input_message = af<MatMul>(fg, {node_input, w_n2l});
+    auto input_potential_layer = af<ReLU>(fg, {input_message}); 
+    int lv = 0;
+    auto cur_message_layer = input_potential_layer;
+    while (lv < cfg::max_bp_iter)
+    {
+        lv++;
+        auto n2npool = af<MatMul>(fg, {n2nsum_param, cur_message_layer});
+        auto node_linear = af<MatMul>(fg, {n2npool, p_node_conv});
+        auto merged_linear = af<ElewiseAdd>(fg, {node_linear, input_message});
+        cur_message_layer = af<ReLU>(fg, {merged_linear}); 
+    }
 
-	auto y_potential = af<MatMul>(fg, {subgsum_param, cur_message_layer});
+    auto y_potential = af<MatMul>(fg, {subgsum_param, cur_message_layer});
     auto aux_input = add_const< DTensorVar<mode, Dtype> >(fg, "aux_feat", true);
 
     // Q func given a
@@ -73,13 +73,13 @@ void QNet::BuildNet()
     if (cfg::reg_hidden > 0)
     {
         auto hidden = af<MatMul>(fg, {embed_s_a, h1_weight});
-	    last_output = af<ReLU>(fg, {hidden}); 
+        last_output = af<ReLU>(fg, {hidden}); 
     }
     last_output = af< ConcatCols >(fg, {last_output, aux_input});
     q_pred = af< MatMul >(fg, {last_output, last_w});
 
     auto diff = af< SquareError >(fg, {q_pred, label});
-	loss = af< ReduceMean >(fg, {diff});
+    loss = af< ReduceMean >(fg, {diff});
 
     // q func on all a
     auto rep_y = af<MatMul>(fg, {rep_global, y_potential});
@@ -89,7 +89,7 @@ void QNet::BuildNet()
     if (cfg::reg_hidden > 0)
     {
         auto hidden = af<MatMul>(fg, {embed_s_a_all, h1_weight});
-	    last_output = af<ReLU>(fg, {hidden}); 
+        last_output = af<ReLU>(fg, {hidden}); 
     }
 
     auto rep_aux = af<MatMul>(fg, {rep_global, aux_input});
@@ -135,7 +135,7 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
     aux_feat.Reshape({idxes.size(), (size_t)cfg::aux_dim});
     aux_feat.Fill(0.0);
 
-	int node_cnt = 0;
+    int node_cnt = 0;
     for (size_t i = 0; i < idxes.size(); ++i)
     {
         auto& g = g_list[idxes[i]];
@@ -168,7 +168,7 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
     node_cnt = 0;
     int edge_cnt = 0;
     for (size_t i = 0; i < idxes.size(); ++i)
-	{                
+    {                
         auto& g = g_list[idxes[i]];
         auto& idx_map = idx_map_list[i];
 
@@ -210,7 +210,7 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
         }
 
         node_cnt += avail_act_cnt[i];
-	}
+    }
     assert(node_cnt == (int)graph.num_nodes);
     if (actions)
     {
