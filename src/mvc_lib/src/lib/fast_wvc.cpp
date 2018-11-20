@@ -604,11 +604,6 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline)
     int step = 1;
     int try_step = 100;
 
-    g_best.ave_weight = 1;
-    g_best.delta_total_weight = 0;
-    g_best.p_scale = 0.3;
-    g_best.threshold = (int)(0.5 * g_best.v_num);
-
     Graph g = g_best;
 
     while (true)

@@ -3,6 +3,12 @@
 
 #include "i_env.h"
 
+enum FastWVCActionType {
+  ActionTypeUpdateTarget,
+  ActionTypeRemoveV,
+  ActionTypeAddV,
+};
+
 class MvcEnv : public IEnv
 {
 public:
@@ -18,10 +24,10 @@ public:
     virtual bool isTerminal() override;
 
     virtual double getReward() override;
-
-    int numCoveredEdges;
-    std::set<int> covered_set;
-    std::vector<int> avail_list;
+    FastWVCActionType next_action_type;
+    int update_v;
+    int current_step;
+    int max_steps;
 };
 
 #endif
