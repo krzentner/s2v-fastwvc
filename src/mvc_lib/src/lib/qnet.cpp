@@ -10,7 +10,7 @@ QNet::QNet() : INet()
     inputs["act_select"] = &m_act_select;
     inputs["rep_global"] = &m_rep_global;
     inputs["aux_feat"] = &m_aux_feat;
-    cfg::aux_dim = 3;
+    cfg::aux_dim = 5;
 }
 
 void QNet::BuildNet()
@@ -149,6 +149,8 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
             aux_ptr[1] = (Dtype)counter / (Dtype)g->edge_list.size();
 
         aux_ptr[2] = 1.0;
+        aux_ptr[3] = ((double) g->v_weight[i]) / (double) g->max_v_weight;
+        aux_ptr[4] = (double) g->dscore[i] / (double) g->max_v_degree;
         node_cnt += avail_act_cnt[i];
     }
     graph.Resize(idxes.size(), node_cnt);

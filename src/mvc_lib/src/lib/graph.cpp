@@ -5,7 +5,7 @@
 
 Graph::Graph() : num_nodes(0), num_edges(0), c_size(0), now_weight(0),
   ave_weight(1), delta_total_weight(0), threshold(0 /* (int)(0.5 * v_num) */),
-  p_scale(0.3), seed(0), mode(0)
+  p_scale(0.3), max_v_weight(0), max_v_degree(0), seed(0), mode(0)
 {
     edge_list.clear();
     adj_list.clear();
@@ -58,6 +58,19 @@ Graph::Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
         v_degree[edge[e].v1]++;
         v_degree[edge[e].v2]++;
     }
+
+    int max_v_w = 0;
+    int max_v_d = 0;
+    for (v1 = 0; v1 < v_num; v1++) {
+      if (v_weight[v1] > max_v_w) {
+        max_v_w = v_weight[v1];
+      }
+      if (v_degree[v1] > max_v_d) {
+        max_v_d = v_degree[v1];
+      }
+    }
+    max_v_weight = max_v_w;
+    max_v_degree = max_v_d;
 
     num_nodes = v_num;
     num_edges = e_num;

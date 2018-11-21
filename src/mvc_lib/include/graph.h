@@ -60,6 +60,9 @@ public:
     int threshold;
     double p_scale;
 
+    int max_v_weight;
+    int max_v_degree;
+
     unsigned int seed;
     int mode;
 };
