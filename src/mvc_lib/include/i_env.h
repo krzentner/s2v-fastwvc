@@ -22,11 +22,13 @@ public:
 
     virtual double getReward() = 0;
 
+    virtual std::vector< int >* getState() = 0;
+
     double norm;
     std::shared_ptr<Graph> graph;
     
     std::vector< std::vector<int> > state_seq;
-    std::vector<int> act_seq, action_list;
+    std::vector<int> act_seq;
     std::vector<double> reward_seq, sum_rewards;
 };
 

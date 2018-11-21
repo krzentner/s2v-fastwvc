@@ -17,8 +17,7 @@ void MvcEnv::s0(std::shared_ptr<Graph> _g)
 
 double MvcEnv::step(int a)
 {
-    state_seq.push_back(action_list);
-    action_list.push_back(a);
+    state_seq.push_back(graph->remove_cand);
 
     double reward = stepInner(a);
 
@@ -117,4 +116,10 @@ bool MvcEnv::isTerminal()
 double MvcEnv::getReward()
 {
     return -1.0 / graph->now_weight;
+}
+
+std::vector<int>* MvcEnv::getState()
+{
+  assert(graph);
+  return &graph->remove_cand;
 }

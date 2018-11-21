@@ -69,7 +69,7 @@ void NStepReplayMem::Add(IEnv* env)
         if (i + cfg::n_step >= num_steps)
         {
             cur_r = env->sum_rewards[i];
-            s_prime = &(env->action_list);
+            s_prime = env->getState();
             term_t = true;
         } else {
             cur_r = env->sum_rewards[i] - env->sum_rewards[i + cfg::n_step];

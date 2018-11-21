@@ -43,7 +43,7 @@ void Simulator::run_simulator(int num_seq, double eps)
                 }
                 env_list[i]->s0(GSetTrain.Sample());
                 g_list[i] = env_list[i]->graph;
-                covered[i] = &(env_list[i]->action_list);
+                covered[i] = env_list[i]->getState();
             }
         }
 

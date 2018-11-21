@@ -119,7 +119,7 @@ double Test(const int gid)
     std::vector< std::vector<int>* > states(1);
 
     test_env->s0(GSetTest.Get(gid));
-    states[0] = &(test_env->action_list);
+    states[0] = test_env->getState();
     g_list[0] = test_env->graph;
 
     double cost = 0;
@@ -141,7 +141,7 @@ double GetSol(const int gid, int* sol)
     std::vector< std::vector<int>* > states(1);
 
     test_env->s0(GSetTest.Get(gid));
-    states[0] = &(test_env->action_list);
+    states[0] = test_env->getState();
     g_list[0] = test_env->graph;
 
     double cost = 0;
