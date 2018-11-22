@@ -99,29 +99,16 @@ void QNet::BuildNet()
 
 int QNet::GetStatusInfo(std::shared_ptr<Graph> g, int num, const int* covered, int& counter, std::vector<int>& idx_map)
 {
-    std::set<int> c;
     idx_map.resize(g->num_nodes);
-    for (int i = 0; i < g->num_nodes; ++i)
-        idx_map[i] = -1;
-
-    for (int i = 0; i < num; ++i)
-        c.insert(covered[i]);            
-    counter = 0; 
     int n = 0;
-    for (auto& p : g->edge_list)
-    {
-        if (c.count(p.first) || c.count(p.second))
-        {
-            counter++;            
-        } else {
-            if (idx_map[p.first] < 0)
-                n++;
-            if (idx_map[p.second] < 0)
-                n++;                
-            idx_map[p.first] = 0;
-            idx_map[p.second] = 0;
-        }
-    }    
+    for (int i = 0; i < g->num_nodes; ++i) {
+      if (g->v_in_c[i]) {
+        idx_map[i] = -1;
+      } else {
+        idx_map[i] = 0;
+        n++;
+      }
+    }
     return n;
 }
 
