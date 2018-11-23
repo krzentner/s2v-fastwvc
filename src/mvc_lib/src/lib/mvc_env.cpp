@@ -125,8 +125,8 @@ int MvcEnv::randomAction()
 bool MvcEnv::isTerminal()
 {
     assert(graph);
-    // Is this valid? Should we return true after some fixed number of steps?
-    // return false;
+    // Unless we modify mvc_lib.cpp, we need this method to eventually return
+    // true.
     return current_step > max_steps;
 }
 

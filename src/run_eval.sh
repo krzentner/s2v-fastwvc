@@ -43,7 +43,7 @@ max_iter=100000
 # folder to save the trained model
 save_dir=$result_root/embed-$embed_dim-nbp-$max_bp_iter-rh-$reg_hidden
 
-python evaluate.py \
+python2.7 evaluate.py \
     -n_step $n_step \
     -dev_id $dev_id \
     -data_test $data_test \

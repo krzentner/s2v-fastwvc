@@ -33,6 +33,9 @@ n_step=2
 min_n=15
 max_n=20
 
+min_w=1
+max_w=100
+
 num_env=1
 mem_size=500000
 
@@ -46,11 +49,13 @@ then
     mkdir -p $save_dir
 fi
 
-python main.py \
+python2.7 main.py \
     -n_step $n_step \
     -dev_id $dev_id \
     -min_n $min_n \
     -max_n $max_n \
+    -min_w $min_w \
+    -max_w $max_w \
     -num_env $num_env \
     -max_iter $max_iter \
     -mem_size $mem_size \
