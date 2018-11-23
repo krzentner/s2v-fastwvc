@@ -2,5 +2,12 @@ include_rules
 : foreach src/nn/*.cpp |> !cxx |> build/%B.o
 : foreach src/tensor/*.cpp |> !cxx |> build/%B.o
 : foreach src/util/*.cpp |> !cxx |> build/%B.o
+
+ifeq (@(USE_GPU),1)
+: foreach src/nn/*.cu |> !nvcc |> build/cuda_%B.o
+: foreach src/tensor/*.cu |> !nvcc |> build/cuda_%B.o
+: foreach src/util/*.cu |> !nvcc |> build/cuda_%B.o
+endif
+
 : build/*.o |> !ar |> graphnn.a 
 : build/*.o |> !cxx-dylib |> graphnn.so

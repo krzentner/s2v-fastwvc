@@ -1,7 +1,26 @@
 MKL_LIB_PATH=@(MKL_PATH)/lib/intel64
 MKL_LINK_FLAGS=-L$(MKL_LIB_PATH) -lm -lmkl_rt -ltbb
-CFLAGS = -Wall -fPIC -I include -I @(MKL_PATH)/include @(CFLAGS)
-!cxx = |> ^ CXX %f^ g++ -c %f -o %o $(CFLAGS) |>
-!cxx-dylib = |> ^ LIB %o ^ g++ -shared $(CFLAGS) -o %o %f $(MKL_LINK_FLAGS) |>
+LINK_FLAGS=$(MKL_LINK_FLAGS)
+
+INCLUDE_FLAGS = -I include -I @(MKL_PATH)/include -I @(TBB_PATH)/include -I @(CUDA_ROOT)/include
+
+CFLAGS = -Wall -fPIC -std=c++11 $(INCLUDE_FLAGS)
+
+ifeq (@(USE_GPU),1)
+  CFLAGS += -DUSE_GPU
+  LINK_FLAGS += -L@(CUDA_ROOT)/lib64 -lcudart -lcublas -lcurand -lcusparse
+  NVCC_FLAGS = --default-stream per-thread \
+              -gencode arch=compute_30,code=sm_30 \
+              -gencode arch=compute_35,code=sm_35 \
+              -gencode arch=compute_50,code=sm_50 \
+              -gencode arch=compute_50,code=compute_50 \
+              -DUSE_GPU $(INCLUDE_FLAGS) \
+              -std=c++11 --use_fast_math --compiler-options -fPIC
+  !nvcc = |> ^ NVCC %f ^ @(NVCC) $(NVCC_FLAGS) -c -o %o %f |>
+endif
+
+CFLAGS += @(CFLAGS)
+!cxx = |> ^ CXX %f ^ @(CXX) $(CFLAGS) -c -o %o %f |>
+!cxx-dylib = |> ^ LIB %o ^ @(CXX) -shared $(CFLAGS) -o %o %f $(LINK_FLAGS) |>
 !ar = |> ^ AR %o ^ ar rcs %o %f |>
 .gitignore
