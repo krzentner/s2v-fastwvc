@@ -22,13 +22,11 @@ public:
 
     virtual void SetupTrain(std::vector<int>& idxes, 
                             std::vector< std::shared_ptr<Graph> >& g_list, 
-                            std::vector< std::vector<int>* >& covered, 
                             std::vector<int>& actions, 
                             std::vector<double>& target) = 0;
                             
     virtual void SetupPredAll(std::vector<int>& idxes, 
-                              std::vector< std::shared_ptr<Graph> >& g_list, 
-                              std::vector< std::vector<int>* >& covered) = 0;
+                              std::vector< std::shared_ptr<Graph> >& g_list) = 0;
 
     void UseOldModel();
     void UseNewModel();

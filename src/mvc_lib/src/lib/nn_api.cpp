@@ -27,7 +27,7 @@ void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::ve
         for (int j = i; j < i + bsize; ++j)
             batch_idxes[j - i] = j;
         
-        net->SetupPredAll(batch_idxes, g_list, covered);
+        net->SetupPredAll(batch_idxes, g_list);
         net->fg.FeedForward({net->q_on_all}, net->inputs, Phase::TEST);        
         auto& raw_output = net->q_on_all->value;
         output.CopyFrom(raw_output);
@@ -78,7 +78,7 @@ double Fit(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vect
         for (int j = i; j < i + bsize; ++j)
             batch_idxes[j - i] = j;
 
-        net->SetupTrain(batch_idxes, g_list, covered, actions, target);
+        net->SetupTrain(batch_idxes, g_list, actions, target);
         net->fg.FeedForward({net->loss}, net->inputs, Phase::TRAIN);
         net->fg.BackPropagate({net->loss});
         net->learner->Update();
