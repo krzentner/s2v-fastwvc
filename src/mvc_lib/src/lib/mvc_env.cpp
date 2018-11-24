@@ -122,7 +122,10 @@ double MvcEnv::stepInner(int a)
 int MvcEnv::randomAction()
 {
     assert(graph);
-    return rand() % graph->v_num;
+    // TODO(krzentner): WHY DOES THIS WORK?
+    // Are we mixing up actions from different graphs?
+    // Why doesn't this work: return rand() % graph->remove_cand.size();
+    return rand() % (graph->num_nodes - 5);
 }
 
 bool MvcEnv::isTerminal()
