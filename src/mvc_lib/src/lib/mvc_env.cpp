@@ -5,7 +5,9 @@
 
 #include <fast_wvc.h>
 
-MvcEnv::MvcEnv(double _norm) : IEnv(_norm), next_action_type(ActionTypeUpdateTarget)
+MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
+  next_action_type(ActionTypeUpdateTarget), update_v(0), current_step(0),
+  max_steps(100)
 {
 
 }
