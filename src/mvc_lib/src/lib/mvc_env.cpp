@@ -7,7 +7,7 @@
 
 MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
   next_action_type(ActionTypeUpdateTarget), update_v(0), current_step(0),
-  max_steps(100)
+  max_steps(2)
 {
 
 }
@@ -41,6 +41,7 @@ double MvcEnv::stepInner(int a)
     assert(graph);
     double invalid_action_reward = -1.0;
     double repeat_action_reward = -1.0;
+    ++current_step;
     // We often know which actions are valid ahead of time, but we never tell
     // the qnet. We should add masking or something.
     if (next_action_type == ActionTypeUpdateTarget) {
@@ -106,7 +107,6 @@ double MvcEnv::stepInner(int a)
         next_action_type = ActionTypeUpdateTarget;
         RemoveRedundant(*graph);
         update_v = 0;
-        ++current_step;
         return getReward();
       }
       // I don't think we should return 0 here, since that enourages the agent
