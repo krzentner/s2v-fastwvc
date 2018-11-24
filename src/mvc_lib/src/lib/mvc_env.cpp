@@ -20,6 +20,7 @@ void MvcEnv::s0(std::shared_ptr<Graph> _g)
 double MvcEnv::step(int a)
 {
     state_seq.push_back(graph->remove_cand);
+    act_seq.push_back(a);
 
     double reward = stepInner(a);
 
