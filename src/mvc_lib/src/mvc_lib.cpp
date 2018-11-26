@@ -6,6 +6,7 @@
 #include "nstep_replay_mem.h"
 #include "simulator.h"
 #include "mvc_env.h"
+#include "fast_wvc.h"
 #include <random>
 #include <algorithm>
 #include <cstdlib>
@@ -115,24 +116,7 @@ double Fit()
 
 double Test(const int gid)
 {
-    std::vector< std::shared_ptr<Graph> > g_list(1);
-    std::vector< std::vector<int>* > states(1);
-
-    test_env->s0(GSetTest.Get(gid));
-    states[0] = test_env->getState();
-    g_list[0] = test_env->graph;
-
-    double cost = 0;
-    int new_action;
-    while (!test_env->isTerminal())
-    {
-        cost++;
-
-        Predict(g_list, states, list_pred);
-        new_action = arg_max(test_env->graph->num_nodes, list_pred[0]->data());
-        test_env->step(new_action);
-    }
-    return cost;
+    return GetSol(gid, nullptr);
 }
 
 double GetSol(const int gid, int* sol)
@@ -143,19 +127,22 @@ double GetSol(const int gid, int* sol)
     test_env->s0(GSetTest.Get(gid));
     states[0] = test_env->getState();
     g_list[0] = test_env->graph;
+    ConstructVC(*test_env->graph);
+    Graph g_best = *test_env->graph;
 
-    double cost = 0;
     int new_action;
-    int len = 0;
     while (!test_env->isTerminal())
     {
-        cost++;
         Predict(g_list, states, list_pred);
         new_action = arg_max(test_env->graph->num_nodes, list_pred[0]->data());
         test_env->step(new_action);
-        len++;
-        sol[len] = new_action;
+
+        if (g_list[0]->uncov_stack.size() == 0) {
+          UpdateBestSolution(g_best, *g_list[0]);
+        }
     }
-    sol[0] = len;
-    return cost;    
+    if (sol) {
+      memcpy(sol, g_best.remove_cand.data(), g_best.remove_cand.size() * sizeof(int));
+    }
+    return g_best.now_weight;    
 }

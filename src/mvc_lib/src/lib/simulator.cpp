@@ -41,7 +41,12 @@ void Simulator::run_simulator(int num_seq, double eps)
                     n++;
                     NStepReplayMem::Add(env_list[i]);
                 }
-                env_list[i]->s0(GSetTrain.Sample());
+                Graph g = *GSetTrain.Sample();
+                // TODO(krzentner): Learn the right way to use shared_ptr.
+                // Why is this so difficult?
+                std::shared_ptr<Graph> g_ptr(new Graph());
+                *g_ptr = g;
+                env_list[i]->s0(g_ptr);
                 g_list[i] = env_list[i]->graph;
                 covered[i] = env_list[i]->getState();
             }
