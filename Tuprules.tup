@@ -1,6 +1,8 @@
 MKL_LIB_PATH=@(MKL_PATH)/lib/intel64
-MKL_LINK_FLAGS=-L$(MKL_LIB_PATH) -lm -lmkl_rt -ltbb
-LINK_FLAGS=$(MKL_LINK_FLAGS)
+MKL_LINK_FLAGS=-L$(MKL_LIB_PATH) -lmkl_rt
+TBB_LIB_PATH=@(TBB_PATH)/lib/intel64/gcc4.7
+TBB_LINK_FLAGS=-L$(TBB_LIB_PATH) -ltbb
+LINK_FLAGS=-lm $(MKL_LINK_FLAGS) $(TBB_LINK_FLAGS)
 
 INCLUDE_FLAGS = -I include -I @(MKL_PATH)/include -I @(TBB_PATH)/include -I @(CUDA_ROOT)/include
 
