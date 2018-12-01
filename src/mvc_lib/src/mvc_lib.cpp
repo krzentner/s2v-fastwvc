@@ -124,10 +124,10 @@ double GetSol(const int gid, int* sol)
     std::vector< std::shared_ptr<Graph> > g_list(1);
     std::vector< std::vector<int>* > states(1);
 
-    test_env->s0(GSetTest.Get(gid));
+    g_list[0] = std::make_shared<Graph>(*GSetTest.Get(gid));
+    ConstructVC(*g_list[0]);
+    test_env->s0(g_list[0]);
     states[0] = test_env->getState();
-    g_list[0] = test_env->graph;
-    ConstructVC(*test_env->graph);
     Graph g_best = *test_env->graph;
 
     int new_action;
