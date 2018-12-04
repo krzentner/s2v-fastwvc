@@ -110,9 +110,12 @@ if __name__ == '__main__':
 
         if iter % 300 == 0:
             frac = 0.0
+            frac_fastwvc = 0.0
             for idx in range(n_valid):
                 frac += api.lib.Test(idx)
-            print 'iter', iter, 'eps', eps, 'average size of vc: ', frac / n_valid
+                val_fastwvc, _ = api.FastWVC(True, idx, 0, 60, 2)
+                frac_fastwvc += val_fastwvc
+            print 'iter', iter, 'eps', eps, 'average size of vc: ', frac / n_valid, 'FastWVC average:', frac_fastwvc / n_valid
             sys.stdout.flush()
             model_path = '%s/nrange_%d_%d_iter_%d.model' % (opt['save_dir'], int(opt['min_n']), int(opt['max_n']), iter)
             api.SaveModel(model_path)

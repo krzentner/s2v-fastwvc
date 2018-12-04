@@ -13,6 +13,7 @@ class MvcLib(object):
         self.lib.Fit.restype = ctypes.c_double
         self.lib.Test.restype = ctypes.c_double
         self.lib.GetSol.restype = ctypes.c_double
+        self.lib.FastWVC.restype = ctypes.c_double
         arr = (ctypes.c_char_p * len(args))()
         arr[:] = args
         self.lib.Init(len(args), arr)
@@ -67,6 +68,13 @@ class MvcLib(object):
     def GetSol(self, gid, maxn):
         sol = (ctypes.c_int * (maxn + 10))()
         val = self.lib.GetSol(gid, sol)
+        return val, sol
+
+    def FastWVC(self, is_test, gid, maxn, timeout_seconds, max_steps):
+        sol = None
+        if maxn != 0:
+            sol = (ctypes.c_int * (maxn + 10))()
+        val = self.lib.FastWVC(is_test, gid, sol, timeout_seconds, max_steps)
         return val, sol
 
 if __name__ == '__main__':

@@ -20,6 +20,6 @@ void ConstructVC(Graph &);
 int CheckSolution(Graph &);
 void ForgetEdgeWeights(Graph &);
 void UpdateEdgeWeight(Graph &);
-void LocalSearch(Graph &, std::chrono::steady_clock::time_point deadline);
+void LocalSearch(Graph &, std::chrono::steady_clock::time_point deadline, int max_steps);
 
 #endif // FAST_WVC_H

@@ -598,7 +598,7 @@ void UpdateEdgeWeight(Graph &g)
     }
 }
 
-void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline)
+void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline, int max_steps)
 {
     int add_v, remove_v, update_v = 0;
     int step = 1;
@@ -610,6 +610,11 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline)
     {
         UpdateBestSolution(g_best, g);
         update_v = UpdateTargetSize(g);
+
+        if (max_steps != 0 && step > max_steps)
+        {
+          return;
+        }
 
         if (step % try_step == 0)
         {

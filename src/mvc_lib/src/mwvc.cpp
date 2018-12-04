@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
       std::chrono::steady_clock::now() + std::chrono::seconds(cutoff_time);
 
     ConstructVC(g);
-    LocalSearch(g, deadline);
+    LocalSearch(g, deadline, 0);
 
     if (CheckSolution(g) == 1)
     {

@@ -114,14 +114,9 @@ double Fit()
     return Fit(sample.g_list, sample.list_at, list_target);
 }
 
-double Test(const int gid)
+double GetSolInner(Graph g, int* sol)
 {
-    return GetSol(gid, nullptr);
-}
-
-double GetSol(const int gid, int* sol)
-{
-    test_env->s0(*GSetTest.Get(gid));
+    test_env->s0(g);
     ConstructVC(test_env->graph);
     Graph g_best = test_env->graph;
 
@@ -142,4 +137,31 @@ double GetSol(const int gid, int* sol)
       memcpy(sol, g_best.remove_cand.data(), g_best.remove_cand.size() * sizeof(int));
     }
     return g_best.now_weight;    
+}
+
+double Test(const int gid)
+{
+  return GetSolInner(*GSetTest.Get(gid), nullptr);
+}
+
+double GetSol(const int gid, int* sol)
+{
+  return GetSolInner(*GSetTrain.Get(gid), sol);
+}
+
+double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps) {
+  Graph g;
+  if (isTest) {
+    g = *GSetTest.Get(gid);
+  } else {
+    g = *GSetTrain.Get(gid);
+  }
+  ConstructVC(g);
+  std::chrono::steady_clock::time_point deadline =
+    std::chrono::steady_clock::now() + std::chrono::seconds(timeout_seconds);
+  LocalSearch(g, deadline, max_steps);
+  if (sol) {
+    memcpy(sol, g.remove_cand.data(), g.remove_cand.size() * sizeof(int));
+  }
+  return g.now_weight;    
 }

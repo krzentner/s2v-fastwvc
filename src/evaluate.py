@@ -47,6 +47,7 @@ if __name__ == '__main__':
     n_test = 1000
     f = open(opt['data_test'], 'rb')
     frac = 0.0
+    frac_fastwvc = 0.0
 
     test_name = opt['data_test'].split('/')[-1]
     result_file = '%s/test-%s-gnn-%s-%s.csv' % (opt['save_dir'], test_name, opt['min_n'], opt['max_n'])
@@ -66,4 +67,6 @@ if __name__ == '__main__':
                 f_out.write(' %d' % sol[i + 1])
             f_out.write(',%.6f\n' % (t2 - t1))
             frac += val
-    print 'average size of vc: ', frac / n_test
+            val_fastwvc, _ = api.FastWVC(False, i, nx.number_of_nodes(g), 60, 1)
+            frac_fastwvc += val_fastwvc
+    print 'average size of vc: ', frac / n_test, ' FastWVC average:', frac_fastwvc / n_test
