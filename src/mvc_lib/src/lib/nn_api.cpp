@@ -14,7 +14,7 @@ INet* net = nullptr;
 
 std::vector<int> batch_idxes;
 
-void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vector<int>* >& covered, std::vector< std::vector<double>* >& pred)
+void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vector<double>* >& pred)
 {
     DTensor<CPU, Dtype> output;
     int n_graphs = g_list.size();
@@ -57,14 +57,14 @@ void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::ve
     }   
 }
 
-void PredictWithSnapshot(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vector<int>* >& covered, std::vector< std::vector<double>* >& pred)
+void PredictWithSnapshot(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vector<double>* >& pred)
 {
     net->UseOldModel();
-    Predict(g_list, covered, pred);
+    Predict(g_list, pred);
     net->UseNewModel();
 }
 
-double Fit(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::vector<int>* >& covered, std::vector<int>& actions, std::vector<double>& target)
+double Fit(std::vector< std::shared_ptr<Graph> >& g_list, std::vector<int>& actions, std::vector<double>& target)
 {   
     Dtype loss = 0;
     int n_graphs = g_list.size();

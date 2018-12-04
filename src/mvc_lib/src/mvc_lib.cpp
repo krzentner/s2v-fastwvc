@@ -98,7 +98,7 @@ double Fit()
             break;
         }
     if (ness)
-        PredictWithSnapshot(sample.g_list, sample.list_s_primes, list_pred);
+        PredictWithSnapshot(sample.g_list, list_pred);
     
     list_target.resize(cfg::batch_size);
 
@@ -111,7 +111,7 @@ double Fit()
         list_target[i] = q_rhs;
     }
 
-    return Fit(sample.g_list, sample.list_st, sample.list_at, list_target);
+    return Fit(sample.g_list, sample.list_at, list_target);
 }
 
 double Test(const int gid)
@@ -121,20 +121,17 @@ double Test(const int gid)
 
 double GetSol(const int gid, int* sol)
 {
-    std::vector< std::shared_ptr<Graph> > g_list(1);
-    std::vector< std::vector<int>* > states(1);
-
-    g_list[0] = std::make_shared<Graph>(*GSetTest.Get(gid));
-    ConstructVC(*g_list[0]);
-    test_env->s0(g_list[0]);
-    states[0] = test_env->getState();
-    Graph g_best = *test_env->graph;
+    test_env->s0(*GSetTest.Get(gid));
+    ConstructVC(test_env->graph);
+    Graph g_best = test_env->graph;
 
     int new_action;
     while (!test_env->isTerminal())
     {
-        Predict(g_list, states, list_pred);
-        new_action = arg_max(test_env->graph->num_nodes, list_pred[0]->data());
+        std::vector< std::shared_ptr< Graph > > g_list;
+        g_list.push_back(std::make_shared<Graph>(test_env->graph));
+        Predict(g_list, list_pred);
+        new_action = arg_max(test_env->graph.num_nodes, list_pred[0]->data());
         test_env->step(new_action);
 
         if (g_list[0]->uncov_stack.size() == 0) {

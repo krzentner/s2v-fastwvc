@@ -10,9 +10,9 @@ class IEnv
 {
 public:
 
-    IEnv(double _norm) : norm(_norm), graph(nullptr) {}
+    IEnv(double _norm) : norm(_norm), graph() {}
 
-    virtual void s0(std::shared_ptr<Graph> _g) = 0;
+    virtual void s0(Graph _g) = 0;
 
     virtual double step(int a) = 0;
 
@@ -22,12 +22,9 @@ public:
 
     virtual double getReward() = 0;
 
-    virtual std::vector< int >* getState() = 0;
-
     double norm;
-    std::shared_ptr<Graph> graph;
+    Graph graph;
     
-    std::vector< std::vector<int> > state_seq;
     std::vector<int> act_seq;
     std::vector<double> reward_seq, sum_rewards;
 };

@@ -15,7 +15,7 @@ public:
 
     MvcEnv(double _norm);
 
-    virtual void s0(std::shared_ptr<Graph>  _g) override;
+    virtual void s0(Graph _g) override;
 
     virtual double step(int a) override;
 
@@ -24,8 +24,6 @@ public:
     virtual bool isTerminal() override;
 
     virtual double getReward() override;
-
-    virtual std::vector< int >* getState() override;
 
     double stepInner(int a);
     FastWVCActionType next_action_type;

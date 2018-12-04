@@ -7,7 +7,6 @@
 
 std::vector<IEnv*> Simulator::env_list;
 std::vector< std::shared_ptr<Graph> > Simulator::g_list;
-std::vector< std::vector<int>* > Simulator::covered;
 std::vector< std::vector<double>* > Simulator::pred;
 
 std::default_random_engine Simulator::generator;
@@ -17,7 +16,6 @@ void Simulator::Init(int num_env)
 {
     env_list.resize(num_env);
     g_list.resize(num_env);
-    covered.resize(num_env);
     pred.resize(num_env);
     for (int i = 0; i < num_env; ++i)
     {
@@ -34,17 +32,15 @@ void Simulator::run_simulator(int num_seq, double eps)
     {
         for (int i = 0; i < num_env; ++i)
         {            
-            if (!env_list[i]->graph || env_list[i]->isTerminal())
+            if (!env_list[i]->graph.num_nodes || env_list[i]->isTerminal())
             {   
-                if (env_list[i]->graph && env_list[i]->isTerminal())
+                if (env_list[i]->graph.num_nodes && env_list[i]->isTerminal())
                 {
                     n++;
                     NStepReplayMem::Add(env_list[i]);
                 }
-                std::shared_ptr<Graph> g_ptr = std::make_shared<Graph>(*GSetTrain.Sample());
-                env_list[i]->s0(g_ptr);
-                g_list[i] = env_list[i]->graph;
-                covered[i] = env_list[i]->getState();
+                env_list[i]->s0(*GSetTrain.Sample());
+                g_list[i] = std::make_shared<Graph>(env_list[i]->graph);
             }
         }
 
@@ -53,7 +49,7 @@ void Simulator::run_simulator(int num_seq, double eps)
 
         bool random = false;
         if (distribution(generator) >= eps)
-            Predict(g_list, covered, pred);
+            Predict(g_list, pred);
         else        
             random = true;
 
@@ -63,7 +59,7 @@ void Simulator::run_simulator(int num_seq, double eps)
             if (random)
                 a_t = env_list[i]->randomAction();
             else 
-                a_t = arg_max(env_list[i]->graph->num_nodes, pred[i]->data());
+                a_t = arg_max(env_list[i]->graph.num_nodes, pred[i]->data());
             env_list[i]->step(a_t);            
         }
     }

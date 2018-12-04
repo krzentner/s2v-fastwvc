@@ -12,14 +12,13 @@ MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
 
 }
 
-void MvcEnv::s0(std::shared_ptr<Graph> _g)
+void MvcEnv::s0(Graph _g)
 {
     graph = _g;
 }
 
 double MvcEnv::step(int a)
 {
-    state_seq.push_back(graph->remove_cand);
     act_seq.push_back(a);
 
     double reward = stepInner(a);
@@ -39,7 +38,6 @@ double MvcEnv::stepInner(int a)
     // But as implemented here, our graph can actually get worse over time.
     // The way we relate our ultimate goal (a low total weight vertex cover) to
     // each steps reward requires more thought.
-    assert(graph);
     double invalid_action_reward = -1.0;
     double repeat_action_reward = -1.0;
     ++current_step;
@@ -48,9 +46,9 @@ double MvcEnv::stepInner(int a)
     if (next_action_type == ActionTypeUpdateTarget) {
       // a is best_remove_v from UpdateTargetSize.
       update_v = a;
-      if (graph->v_in_c[update_v] == 1)
+      if (graph.v_in_c[update_v] == 1)
       {
-        Remove(*graph, a);
+        Remove(graph, a);
         next_action_type = ActionTypeRemoveV;
         return 0.0;
       }
@@ -63,28 +61,28 @@ double MvcEnv::stepInner(int a)
       // In principle, we're looking at *every* v, but this feels like it's not
       // quite right.
       int remove_v = a;
-      if (graph->v_in_c[update_v] == 1 && graph->tabu_list[remove_v] != 1)
+      if (graph.v_in_c[update_v] == 1 && graph.tabu_list[remove_v] != 1)
       {
-        Remove(*graph, remove_v);
-        graph->time_stamp[remove_v] = current_step;
+        Remove(graph, remove_v);
+        graph.time_stamp[remove_v] = current_step;
 
-        graph->tabu_list.clear();
-        graph->tabu_list.resize(graph->v_num, 0);
+        graph.tabu_list.clear();
+        graph.tabu_list.resize(graph.v_num, 0);
 
         // TODO(krzentner): Investigate using ActionTypeAddV
         //next_action_type = ActionTypeAddV;
 
         next_action_type = ActionTypeUpdateTarget;
 
-        while (graph->uncov_stack.size() > 0)
+        while (graph.uncov_stack.size() > 0)
         {
-            int add_v = ChooseAddV(*graph, remove_v, update_v);
-            Add(*graph, add_v);
-            UpdateEdgeWeight(*graph);
-            graph->tabu_list[add_v] = 1;
-            graph->time_stamp[add_v] = current_step;
+            int add_v = ChooseAddV(graph, remove_v, update_v);
+            Add(graph, add_v);
+            UpdateEdgeWeight(graph);
+            graph.tabu_list[add_v] = 1;
+            graph.time_stamp[add_v] = current_step;
         }
-        RemoveRedundant(*graph);
+        RemoveRedundant(graph);
         update_v = 0;
 
         return getReward();
@@ -97,16 +95,16 @@ double MvcEnv::stepInner(int a)
       // TODO(krzentner): Make this code path actually active.
       assert(false);
       int add_v = a;
-      if (graph->v_in_c[add_v] == 1) {
+      if (graph.v_in_c[add_v] == 1) {
         return invalid_action_reward;
       }
-      Add(*graph, add_v);
-      UpdateEdgeWeight(*graph);
-      graph->tabu_list[add_v] = 1;
-      graph->time_stamp[add_v] = current_step;
-      if (graph->uncov_stack.size() == 0) {
+      Add(graph, add_v);
+      UpdateEdgeWeight(graph);
+      graph.tabu_list[add_v] = 1;
+      graph.time_stamp[add_v] = current_step;
+      if (graph.uncov_stack.size() == 0) {
         next_action_type = ActionTypeUpdateTarget;
-        RemoveRedundant(*graph);
+        RemoveRedundant(graph);
         update_v = 0;
         return getReward();
       }
@@ -121,16 +119,14 @@ double MvcEnv::stepInner(int a)
 
 int MvcEnv::randomAction()
 {
-    assert(graph);
     // TODO(krzentner): WHY DOES THIS WORK?
     // Are we mixing up actions from different graphs?
-    // Why doesn't this work: return rand() % graph->remove_cand.size();
-    return rand() % (graph->num_nodes - 5);
+    // Why doesn't this work: return rand() % graph.remove_cand.size();
+    return rand() % (graph.num_nodes - 5);
 }
 
 bool MvcEnv::isTerminal()
 {
-    assert(graph);
     // Unless we modify mvc_lib.cpp, we need this method to eventually return
     // true.
     return current_step > max_steps;
@@ -138,11 +134,5 @@ bool MvcEnv::isTerminal()
 
 double MvcEnv::getReward()
 {
-    return -1.0 / graph->now_weight;
-}
-
-std::vector<int>* MvcEnv::getState()
-{
-  assert(graph);
-  return &graph->remove_cand;
+    return -1.0 / graph.now_weight;
 }
