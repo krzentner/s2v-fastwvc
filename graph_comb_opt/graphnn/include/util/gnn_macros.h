@@ -4,11 +4,11 @@
 #include <cstddef>
 #include <iostream>
 #include <cstring>
-#include <execinfo.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <cstdio>
+#include <cassert>
 
 namespace gnn
 {
@@ -34,8 +34,7 @@ namespace gnn
                       << " line " << __LINE__ << ": " << message << std::endl; \
             void *array[10]; \
             size_t size; \
-            size = backtrace(array, 10); \
-            backtrace_symbols_fd(array, size, STDERR_FILENO); \
+            assert(condition); \
             std::terminate(); \
         } \
     } while (false)
