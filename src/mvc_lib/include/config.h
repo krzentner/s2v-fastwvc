@@ -30,6 +30,7 @@ struct cfg
     static int reg_hidden;
     static int node_dim;
     static int aux_dim;
+    static int max_steps;
     static Dtype learning_rate;
     static Dtype l2_penalty;
     static Dtype momentum;    
@@ -64,6 +65,8 @@ struct cfg
                 batch_size = atoi(argv[i + 1]);
             if (strcmp(argv[i], "-max_iter") == 0)
                 max_iter = atoi(argv[i + 1]);                   
+            if (strcmp(argv[i], "-max_steps") == 0)
+                max_steps = atoi(argv[i + 1]);                   
             if (strcmp(argv[i], "-l2") == 0)
                 l2_penalty = atof(argv[i + 1]);            
             if (strcmp(argv[i], "-w_scale") == 0)
@@ -77,12 +80,14 @@ struct cfg
         if (n_step <= 0)
             n_step = max_n;
 
+        std::cerr << "Loading params..." << std::endl;
         std::cerr << "mem_size = " << mem_size << std::endl;
         std::cerr << "num_env = " << num_env << std::endl;    
         std::cerr << "n_step = " << n_step << std::endl;
         std::cerr << "min_n = " << min_n << std::endl;
         std::cerr << "max_n = " << max_n << std::endl;
         std::cerr << "max_iter = " << max_iter << std::endl;
+        std::cerr << "max_steps = " << max_steps << std::endl;
         std::cerr << "dev_id = " << dev_id << std::endl;        
         std::cerr << "max_bp_iter = " << max_bp_iter << std::endl;
         std::cerr << "batch_size = " << batch_size << std::endl;        

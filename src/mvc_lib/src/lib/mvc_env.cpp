@@ -2,12 +2,13 @@
 #include "graph.h"
 #include <cassert>
 #include <random>
+#include <config.h>
 
 #include <fast_wvc.h>
 
 MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
   next_action_type(ActionTypeUpdateTarget), update_v(0), current_step(0),
-  max_steps(2)
+  max_steps(cfg::max_steps)
 {
 
 }
@@ -30,14 +31,6 @@ double MvcEnv::step(int a)
 
 double MvcEnv::stepInner(int a)
 {
-    // TODO: Fix this by recording the best state in mvc_lib.cpp
-    // We never record the best solution so far. It's not completely clear how
-    // a "best solution so far" fits into the s2v framework.
-    // In greedy algorithms, there's just a current state, which is always an
-    // "improvemnt" from the previous state.
-    // But as implemented here, our graph can actually get worse over time.
-    // The way we relate our ultimate goal (a low total weight vertex cover) to
-    // each steps reward requires more thought.
     double invalid_action_reward = -1.0;
     double repeat_action_reward = -1.0;
     ++current_step;
