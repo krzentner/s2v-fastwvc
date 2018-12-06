@@ -1,3 +1,7 @@
+ifndef CONFIG_MKL_PATH
+  error Please define CONFIG_MKL_PATH in tup.config
+endif
+
 MKL_LIB_PATH=@(MKL_PATH)/lib/intel64
 MKL_LINK_FLAGS=-L$(MKL_LIB_PATH) -lmkl_rt -Wl,-rpath,$(MKL_LIB_PATH)
 TBB_LIB_PATH=@(TBB_PATH)/lib/intel64/gcc4.7
