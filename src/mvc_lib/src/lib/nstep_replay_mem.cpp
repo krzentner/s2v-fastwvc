@@ -64,7 +64,7 @@ void NStepReplayMem::Add(IEnv* env)
         } else {
             cur_r = env->sum_rewards[i] - env->sum_rewards[i + cfg::n_step];
         }
-        Add(std::make_shared<Graph>(env->graph), env->act_seq[i], cur_r, term_t);
+        Add(std::make_shared<Graph>(env->state_seq[i]), env->act_seq[i], cur_r, term_t);
     }
 }
 

@@ -97,17 +97,27 @@ void QNet::BuildNet()
     q_on_all = af< MatMul >(fg, {last_output, last_w});
 }
 
-int QNet::GetStatusInfo(std::shared_ptr<Graph> g, std::vector<int>& idx_map)
-{
+ int QNet::GetStatusInfo(std::shared_ptr<Graph> g, int& counter, std::vector<int>& idx_map)
+ {
     idx_map.resize(g->num_nodes);
-    int n = 0;
-    for (int i = 0; i < g->num_nodes; ++i) {
-      if (g->v_in_c[i]) {
+    for (int i = 0; i < g->num_nodes; ++i)
         idx_map[i] = -1;
-      } else {
-        idx_map[i] = 0;
-        n++;
-      }
+
+    counter = 0;
+    int n = 0;
+    for (auto& p : g->edge_list)
+    {
+        if (g->v_in_c[p.first] || g->v_in_c[p.second])
+        {
+            counter++;
+        } else {
+            if (idx_map[p.first] < 0)
+                n++;
+            if (idx_map[p.second] < 0)
+                n++;
+            idx_map[p.first] = 0;
+            idx_map[p.second] = 0;
+        }
     }
     return n;
 }
@@ -125,13 +135,14 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
     for (size_t i = 0; i < idxes.size(); ++i)
     {
         auto& g = g_list[idxes[i]];
+        int counter;
         auto* aux_ptr = aux_feat.data->ptr + cfg::aux_dim * i;
         if (g->num_nodes)
             aux_ptr[0] = (Dtype)g->remove_cand.size() / (Dtype)g->num_nodes;
 
-        avail_act_cnt[i] = GetStatusInfo(g, idx_map_list[i]);
+        avail_act_cnt[i] = GetStatusInfo(g, counter, idx_map_list[i]);
         if (g->edge_list.size())
-            aux_ptr[1] = (Dtype)avail_act_cnt[i] / (Dtype)g->edge_list.size();
+            aux_ptr[1] = (Dtype)counter / (Dtype)g->edge_list.size();
 
         aux_ptr[2] = 1.0;
         aux_ptr[3] = ((double) g->v_weight[i]) / (double) g->max_v_weight;

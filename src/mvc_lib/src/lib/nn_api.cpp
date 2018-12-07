@@ -48,7 +48,7 @@ void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::ve
                 }
             }
             for (size_t k = 0; k < cur_pred.size(); k++) {
-              if (!g_list[i]->v_in_c[k]) {
+              if (g_list[i]->v_in_c[k]) {
                 cur_pred[k] = -inf;
               }
             }

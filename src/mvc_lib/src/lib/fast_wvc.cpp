@@ -10,6 +10,7 @@
 #include <random>
 #include <cmath>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 
@@ -80,11 +81,13 @@ void Uncover(Graph &g, int e)
 void Cover(Graph &g, int e)
 {
     int index, last_uncov_edge;
+    assert(g.uncov_stack.size() > 0);
     last_uncov_edge = g.uncov_stack.back();
     g.uncov_stack.pop_back();
     index = g.index_in_uncov_stack[e];
     g.uncov_stack[index] = last_uncov_edge;
     g.index_in_uncov_stack[last_uncov_edge] = index;
+    g.index_in_uncov_stack[e] = -1;
 }
 
 void Add(Graph &g, int v)
@@ -109,7 +112,9 @@ void Add(Graph &g, int v)
         {
             g.dscore[n] -= g.edge_weight[e];
             g.conf_change[n] = 1;
-            Cover(g, e);
+            if (g.index_in_uncov_stack[e] >= 0) {
+              Cover(g, e);
+            }
         }
         else
         {
@@ -153,6 +158,34 @@ void Remove(Graph &g, int v)
             g.dscore[n] -= g.edge_weight[e];
         }
     }
+}
+
+int ChooseTargetSizeUpdate(Graph &g)
+{
+    int v;
+    int best_remove_v;
+    double best_dscore;
+    double dscore_v;
+
+    best_remove_v = g.remove_cand[0];
+    best_dscore = (double)g.v_weight[best_remove_v] / (double)abs(g.dscore[best_remove_v]);
+
+    if (g.dscore[best_remove_v] != 0)
+    {
+        for (unsigned int i = 1; i < g.remove_cand.size(); i++)
+        {
+            v = g.remove_cand[i];
+            if (g.dscore[v] == 0) break;
+            dscore_v = (double)g.v_weight[v] / (double)abs(g.dscore[v]);
+            if (dscore_v > best_dscore)
+            {
+                best_dscore = dscore_v;
+                best_remove_v = v;
+            }
+        }
+    }
+
+    return best_remove_v;
 }
 
 int UpdateTargetSize(Graph &g)

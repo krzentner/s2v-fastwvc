@@ -20,12 +20,11 @@ public:
 
     virtual bool isTerminal() = 0;
 
-    virtual double getReward() = 0;
-
     double norm;
     Graph graph;
     
     std::vector<int> act_seq;
+    std::vector<Graph> state_seq;
     std::vector<double> reward_seq, sum_rewards;
 };
 

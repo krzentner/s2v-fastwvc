@@ -4,7 +4,6 @@
 #include "i_env.h"
 
 enum FastWVCActionType {
-  ActionTypeUpdateTarget,
   ActionTypeRemoveV,
   ActionTypeAddV,
 };
@@ -23,13 +22,17 @@ public:
 
     virtual bool isTerminal() override;
 
-    virtual double getReward() override;
+    Graph& getCheckpoint();
+    void recordCheckpoint();
 
     double stepInner(int a);
+    double removeVertices();
     FastWVCActionType next_action_type;
     int update_v;
+    int remove_v;
     int current_step;
     int max_steps;
+    Graph checkpoint;
 };
 
 #endif

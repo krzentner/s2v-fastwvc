@@ -106,7 +106,7 @@ double Fit()
     {
         double q_rhs = 0;
         if (!sample.list_term[i])
-            q_rhs = max(sample.g_list[i]->num_nodes, list_pred[i]->data());
+            q_rhs = max(list_pred[i]->size(), list_pred[i]->data());
         q_rhs += sample.list_rt[i];
         list_target[i] = q_rhs;
     }
@@ -116,9 +116,9 @@ double Fit()
 
 double GetSolInner(Graph g, int* sol)
 {
+    ConstructVC(g);
+    Graph g_best = g;
     test_env->s0(g);
-    ConstructVC(test_env->graph);
-    Graph g_best = test_env->graph;
 
     int new_action;
     while (!test_env->isTerminal())
@@ -129,9 +129,7 @@ double GetSolInner(Graph g, int* sol)
         new_action = arg_max(test_env->graph.num_nodes, list_pred[0]->data());
         test_env->step(new_action);
 
-        if (g_list[0]->uncov_stack.size() == 0) {
-          UpdateBestSolution(g_best, *g_list[0]);
-        }
+        UpdateBestSolution(g_best, test_env->getCheckpoint());
     }
     if (sol) {
       memcpy(sol, g_best.remove_cand.data(), g_best.remove_cand.size() * sizeof(int));

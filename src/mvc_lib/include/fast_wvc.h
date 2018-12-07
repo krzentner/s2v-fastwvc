@@ -11,6 +11,7 @@ void Uncover(Graph &, int);
 void Cover(Graph &, int);
 void Add(Graph &, int);
 void Remove(Graph &, int);
+int ChooseTargetSizeUpdate(Graph &g);
 int UpdateTargetSize(Graph &);
 int ChooseRemoveV(Graph &);
 int ChooseAddV(Graph &, int, int);

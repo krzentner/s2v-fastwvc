@@ -22,7 +22,7 @@ public:
                          std::vector< std::shared_ptr<Graph> >& g_list, 
                          const int* actions);
 
-    int GetStatusInfo(std::shared_ptr<Graph> g, std::vector<int>& idx_map);
+    int GetStatusInfo(std::shared_ptr<Graph> g, int& counter, std::vector<int>& idx_map);
 
     SpTensor<CPU, Dtype> act_select, rep_global;
     SpTensor<mode, Dtype> m_act_select, m_rep_global;
