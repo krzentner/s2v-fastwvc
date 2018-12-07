@@ -8,12 +8,13 @@ TBB_LIB_PATH=@(TBB_PATH)/lib/intel64/gcc4.7
 TBB_LINK_FLAGS=-L$(TBB_LIB_PATH) -ltbb -Wl,-rpath,$(TBB_LIB_PATH)
 LINK_FLAGS=-lm $(MKL_LINK_FLAGS) $(TBB_LINK_FLAGS)
 
-INCLUDE_FLAGS = -I include -I @(MKL_PATH)/include -I @(TBB_PATH)/include -I @(CUDA_ROOT)/include
+INCLUDE_FLAGS = -I include -I @(MKL_PATH)/include -I @(TBB_PATH)/include
 
 CFLAGS = -Wall -fPIC -std=c++11 $(INCLUDE_FLAGS)
 
 ifeq (@(USE_GPU),1)
   CFLAGS += -DUSE_GPU
+  INCLUDE_FLAGS += -I @(CUDA_ROOT)/include
   LINK_FLAGS += -L@(CUDA_ROOT)/lib64 -lcudart -lcublas -lcurand -lcusparse
   NVCC_FLAGS = --default-stream per-thread \
               -gencode arch=compute_30,code=sm_30 \
