@@ -116,9 +116,8 @@ double Fit()
 
 double GetSolInner(Graph g, int* sol)
 {
-    ConstructVC(g);
-    Graph g_best = g;
     test_env->s0(g);
+    Graph g_best = test_env->getCheckpoint();
 
     int new_action;
     while (!test_env->isTerminal())

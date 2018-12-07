@@ -67,7 +67,7 @@ void ResetRemoveCand(Graph &g)
         }
         else
         {
-            g.index_in_remove_cand[v] = 0;
+            g.index_in_remove_cand[v] = -1;
         }
     }
 }
@@ -138,7 +138,7 @@ void Remove(Graph &g, int v)
     int index = g.index_in_remove_cand[v];
     g.remove_cand[index] = last_remove_cand_v;
     g.index_in_remove_cand[last_remove_cand_v] = index;
-    g.index_in_remove_cand[v] = 0;
+    g.index_in_remove_cand[v] = -1;
 
     g.now_weight -= g.v_weight[v];
 
@@ -160,40 +160,13 @@ void Remove(Graph &g, int v)
     }
 }
 
-int ChooseTargetSizeUpdate(Graph &g)
-{
-    int v;
-    int best_remove_v;
-    double best_dscore;
-    double dscore_v;
-
-    best_remove_v = g.remove_cand[0];
-    best_dscore = (double)g.v_weight[best_remove_v] / (double)abs(g.dscore[best_remove_v]);
-
-    if (g.dscore[best_remove_v] != 0)
-    {
-        for (unsigned int i = 1; i < g.remove_cand.size(); i++)
-        {
-            v = g.remove_cand[i];
-            if (g.dscore[v] == 0) break;
-            dscore_v = (double)g.v_weight[v] / (double)abs(g.dscore[v]);
-            if (dscore_v > best_dscore)
-            {
-                best_dscore = dscore_v;
-                best_remove_v = v;
-            }
-        }
-    }
-
-    return best_remove_v;
-}
-
 int UpdateTargetSize(Graph &g)
 {
     int v;
     int best_remove_v;
     double best_dscore;
     double dscore_v;
+    assert(g.remove_cand.size() > 0);
 
     best_remove_v = g.remove_cand[0];
     best_dscore = (double)g.v_weight[best_remove_v] / (double)abs(g.dscore[best_remove_v]);
@@ -220,6 +193,7 @@ int UpdateTargetSize(Graph &g)
 
 int ChooseRemoveV(Graph &g)
 {
+    assert(g.remove_cand.size() > 0);
     int i, v;
     double dscore_v, dscore_remove_v;
     int remove_v = g.remove_cand[rand() % g.remove_cand.size()];
@@ -676,4 +650,28 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline, int m
         step++;
         update_v = 0;
     }
+}
+
+void CheckUncovStack(Graph &g)
+{
+  for (int v = 0; v < g.v_num; v++) {
+    if (g.v_in_c[v]) {
+      for (size_t i = 0; i < g.v_edges[v].size(); i++) {
+        int e = g.v_edges[v][i];
+        assert(g.index_in_uncov_stack[e] == -1);
+      }
+      assert(g.index_in_remove_cand[v] != -1);
+      assert(g.remove_cand[g.index_in_remove_cand[v]] == v);
+    }
+  }
+  for (size_t j = 0; j < g.uncov_stack.size(); j++) {
+    int e = g.uncov_stack[j];
+    assert(g.index_in_uncov_stack[e] == j);
+  }
+  for (int e = 0; e < g.e_num; e++) {
+    int index = g.index_in_uncov_stack[e];
+    if (index != -1) {
+      assert(g.uncov_stack[index] == e);
+    }
+  }
 }

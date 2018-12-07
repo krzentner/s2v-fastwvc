@@ -11,7 +11,6 @@ void Uncover(Graph &, int);
 void Cover(Graph &, int);
 void Add(Graph &, int);
 void Remove(Graph &, int);
-int ChooseTargetSizeUpdate(Graph &g);
 int UpdateTargetSize(Graph &);
 int ChooseRemoveV(Graph &);
 int ChooseAddV(Graph &, int, int);
@@ -22,5 +21,6 @@ int CheckSolution(Graph &);
 void ForgetEdgeWeights(Graph &);
 void UpdateEdgeWeight(Graph &);
 void LocalSearch(Graph &, std::chrono::steady_clock::time_point deadline, int max_steps);
+void CheckUncovStack(Graph &g);
 
 #endif // FAST_WVC_H

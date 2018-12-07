@@ -7,7 +7,7 @@
 #include <fast_wvc.h>
 
 MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
-  update_v(0), current_step(0), max_steps(cfg::max_steps)
+  update_v(0), remove_v(0), current_step(0), max_steps(cfg::max_steps)
 {
 
 }
@@ -15,7 +15,9 @@ MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
 void MvcEnv::s0(Graph _g)
 {
     graph = _g;
+    ConstructVC(graph);
     current_step = 0;
+    assert(graph.uncov_stack.size() == 0);
     recordCheckpoint();
     removeVertices();
     assert(graph.uncov_stack.size() != 0);
@@ -62,8 +64,6 @@ double MvcEnv::step(int a)
 
 double MvcEnv::stepInner(int a)
 {
-    ++current_step;
-
     assert(a < graph.v_num);
     assert(graph.uncov_stack.size() != 0);
     assert(!graph.v_in_c[a]);
@@ -76,8 +76,13 @@ double MvcEnv::stepInner(int a)
     reward -= graph.v_weight[a];
 
     if (graph.uncov_stack.size() == 0) {
+      ++current_step;
       recordCheckpoint();
-      reward += removeVertices();
+      if (isTerminal()) {
+        removeVertices();
+      } else {
+        reward += removeVertices();
+      }
     }
     return reward;
 }

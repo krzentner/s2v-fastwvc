@@ -75,11 +75,12 @@ Graph::Graph(const int _num_nodes, const int _num_edges, const int* edges_from,
     num_nodes = v_num;
     num_edges = e_num;
 
+    uncov_stack.clear();
     edge.resize(e_num, { 0, 0 });
     index_in_uncov_stack.resize(e_num, -1);
     v_edges.resize(v_num + 1, std::vector<int>());
-    remove_cand.resize(v_num + 1, 0);
-    index_in_remove_cand.resize(v_num + 1, 0);
+    remove_cand.clear();
+    index_in_remove_cand.resize(v_num + 1, -1);
 
     v_degree.resize(v_num + 1, 0);
     tabu_list.resize(v_num + 1, 0);
