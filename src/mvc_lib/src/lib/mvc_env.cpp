@@ -64,6 +64,14 @@ double MvcEnv::step(int a)
 
 double MvcEnv::stepInner(int a)
 {
+    // Every few hours, we get an action to add a vertex that's already in the
+    // cover. Until I can debug why, just give those actions the highest
+    // possible negative reward.
+    // TODO(krzentner): Figure out why this is necessary.
+    if (graph.v_in_c[a]) {
+      return -graph.max_v_weight;
+    }
+
     assert(a < graph.v_num);
     assert(graph.uncov_stack.size() != 0);
     assert(!graph.v_in_c[a]);
