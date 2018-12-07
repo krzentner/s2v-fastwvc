@@ -10,8 +10,6 @@ LINK_FLAGS=-lm $(MKL_LINK_FLAGS) $(TBB_LINK_FLAGS)
 
 INCLUDE_FLAGS = -I include -I @(MKL_PATH)/include -I @(TBB_PATH)/include
 
-CFLAGS = -Wall -fPIC -std=c++11 $(INCLUDE_FLAGS)
-
 ifeq (@(USE_GPU),1)
   CFLAGS += -DUSE_GPU
   INCLUDE_FLAGS += -I @(CUDA_ROOT)/include
@@ -25,6 +23,8 @@ ifeq (@(USE_GPU),1)
               -std=c++11 --use_fast_math --compiler-options -fPIC
   !nvcc = |> ^ NVCC %f ^ @(NVCC) $(NVCC_FLAGS) -c -o %o %f |>
 endif
+
+CFLAGS += -Wall -fPIC -std=c++11 $(INCLUDE_FLAGS)
 
 CFLAGS += @(CFLAGS)
 !cxx = |> ^ CXX %f ^ @(CXX) $(CFLAGS) -c -o %o %f |>
