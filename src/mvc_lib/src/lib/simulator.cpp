@@ -48,10 +48,16 @@ void Simulator::run_simulator(int num_seq, double eps)
             break;            
 
         bool random = false;
-        if (distribution(generator) >= eps)
-            Predict(g_list, pred);
-        else        
+        if (distribution(generator) >= eps) {
+            std::vector< std::shared_ptr<Graph> > graph_list;
+            for (int i = 0; i < num_env; ++i)
+            {
+              graph_list.push_back(std::make_shared<Graph>(env_list[i]->graph));
+            }
+            Predict(graph_list, pred);
+        } else {
             random = true;
+        }
 
         int a_t;
         for (int i = 0; i < num_env; ++i)

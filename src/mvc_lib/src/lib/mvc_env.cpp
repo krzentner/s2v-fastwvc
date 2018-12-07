@@ -33,7 +33,6 @@ Graph& MvcEnv::getCheckpoint()
 
 double MvcEnv::removeVertices()
 {
-    std::cout << "removing vertices" << std::endl;
     double reward = 0.0;
     while (graph.uncov_stack.size() == 0) {
       update_v = UpdateTargetSize(graph);
@@ -64,7 +63,6 @@ double MvcEnv::step(int a)
 double MvcEnv::stepInner(int a)
 {
     ++current_step;
-    std::cout << "taking action a = " << a << std::endl;
 
     assert(a < graph.v_num);
     assert(graph.uncov_stack.size() != 0);
@@ -81,7 +79,6 @@ double MvcEnv::stepInner(int a)
       recordCheckpoint();
       reward += removeVertices();
     }
-    std::cout << "done taking action a = " << a << std::endl;
     return reward;
 }
 
