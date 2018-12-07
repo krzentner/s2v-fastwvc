@@ -48,8 +48,8 @@ void Simulator::run_simulator(int num_seq, double eps)
             break;            
 
         bool random = false;
+        std::vector< std::shared_ptr<Graph> > graph_list;
         if (distribution(generator) >= eps) {
-            std::vector< std::shared_ptr<Graph> > graph_list;
             for (int i = 0; i < num_env; ++i)
             {
               graph_list.push_back(std::make_shared<Graph>(env_list[i]->graph));

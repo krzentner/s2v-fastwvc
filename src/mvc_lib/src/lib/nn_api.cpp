@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <signal.h>
+#include <cassert>
 using namespace gnn;
 
 #define inf 2147483647/2
@@ -47,11 +48,17 @@ void Predict(std::vector< std::shared_ptr<Graph> >& g_list, std::vector< std::ve
                     pos += 1;
                 }
             }
+            bool foundAcceptableAction = false;
+            int acceptable_action = 0;
             for (size_t k = 0; k < cur_pred.size(); k++) {
               if (g_list[i]->v_in_c[k]) {
                 cur_pred[k] = -inf;
+              } else {
+                foundAcceptableAction = true;
+                acceptable_action = k;
               }
             }
+            assert(foundAcceptableAction);
         }
         ASSERT(pos == (int)output.shape.Count(), "idxes not match");
     }   
