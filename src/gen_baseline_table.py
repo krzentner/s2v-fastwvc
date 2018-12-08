@@ -3,12 +3,11 @@ import sys
 
 SIZES = [
     (15, 20),
-    (20, 50),
-    (50, 100),
-    (100, 250),
-    (250, 500),
-    (500, 1000),
-    (1000, 1500)
+    (20, 35),
+    (35, 50),
+    (50, 65),
+    (65, 80),
+    (80, 100),
 ]
 
 WEIGHT_RANGES = [(1, 100)]
@@ -27,7 +26,7 @@ TIMEOUT_SECONDS = 600
 
 api = main.MvcLib(sys.argv)
 
-column_headers = ['Graph Type \ min_n,max_n'] + ['{},{}'.format(min_n, max_n) for min_n, max_n in SIZES]
+column_headers = ['Graph Type \ min_n-max_n'] + ['{}-{}'.format(min_n, max_n) for min_n, max_n in SIZES]
 row_headers = [' '.join([word.capitalize() for word in t.split('_')]) for t in TYPES]
 
 table = []
@@ -48,11 +47,11 @@ for t in TYPES:
             row.append(total_weight / NUM_GRAPHS_PER_CATEGORY)
         table.append(row)
 
-for h in column_headers:
-    print h, '\t',
-print
+for h in column_headers[:-1]:
+    print h, ',',
+print column_headers[-1]
 for i, row in enumerate(table):
-    print row_headers[i], '\t',
-    for el in row:
-        print el, '\t',
-    print
+    print row_headers[i], ',',
+    for el in row[:-1]:
+        print el, ',',
+    print row[-1]
