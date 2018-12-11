@@ -14,6 +14,7 @@ int cfg::mem_size = 0;
 int cfg::num_env = 0;
 int cfg::n_step = -1;
 int cfg::max_steps = 2;
+bool cfg::use_randvc = false;
 Dtype cfg::learning_rate = 0.0005;
 Dtype cfg::l2_penalty = 0;
 Dtype cfg::momentum = 0;

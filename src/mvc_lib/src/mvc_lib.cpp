@@ -146,14 +146,19 @@ double GetSol(const int gid, int* sol)
   return GetSolInner(*GSetTrain.Get(gid), sol);
 }
 
-double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps) {
+double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps,
+               bool use_randvc) {
   Graph g;
   if (isTest) {
     g = *GSetTest.Get(gid);
   } else {
     g = *GSetTrain.Get(gid);
   }
-  ConstructVC(g);
+  if (use_randvc) {
+    RandVC(g);
+  } else {
+    ConstructVC(g);
+  }
   std::chrono::steady_clock::time_point deadline =
     std::chrono::steady_clock::now() + std::chrono::seconds(timeout_seconds);
   LocalSearch(g, deadline, max_steps);

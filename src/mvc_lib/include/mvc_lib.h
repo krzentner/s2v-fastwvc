@@ -20,6 +20,7 @@ extern "C" double Test(const int gid);
 
 extern "C" double GetSol(const int gid, int* sol);
 
-extern "C" double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps);
+extern "C" double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps,
+                          bool use_randvc);
 
 #endif

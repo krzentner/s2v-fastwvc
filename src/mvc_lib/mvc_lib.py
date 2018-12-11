@@ -70,11 +70,11 @@ class MvcLib(object):
         val = self.lib.GetSol(gid, sol)
         return val, sol
 
-    def FastWVC(self, is_test, gid, maxn, timeout_seconds, max_steps):
+    def FastWVC(self, is_test, gid, maxn, timeout_seconds, max_steps, use_randvc):
         sol = None
         if maxn != 0:
             sol = (ctypes.c_int * (maxn + 10))()
-        val = self.lib.FastWVC(is_test, gid, sol, timeout_seconds, max_steps)
+        val = self.lib.FastWVC(is_test, gid, sol, timeout_seconds, max_steps, use_randvc)
         return val, sol
 
 if __name__ == '__main__':

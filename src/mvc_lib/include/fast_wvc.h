@@ -17,6 +17,7 @@ int ChooseAddV(Graph &, int, int);
 void UpdateBestSolution(Graph &, Graph &);
 void RemoveRedundant(Graph &);
 void ConstructVC(Graph &);
+void RandVC(Graph &);
 int CheckSolution(Graph &);
 void ForgetEdgeWeights(Graph &);
 void UpdateEdgeWeight(Graph &);

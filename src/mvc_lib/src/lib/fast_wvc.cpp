@@ -521,6 +521,28 @@ void ConstructVC(Graph &g)
     }
 }
 
+void RandVC(Graph &g)
+{
+    g.uncov_stack.clear();
+    g.c_size = 0;
+    g.now_weight = 0;
+
+    for (int e = 0; e < g.e_num; e++)
+    {
+        int v1 = g.edge[e].v1;
+        int v2 = g.edge[e].v2;
+
+        if (g.v_in_c[v1] == 0 && g.v_in_c[v2] == 0)
+        {
+            if (rand() % 2 == 0) {
+                Add(g, v1);
+            } else {
+                Add(g, v2);
+            }
+        }
+    }
+}
+
 int CheckSolution(Graph &g)
 {
     int e;
@@ -618,7 +640,7 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline, int m
         UpdateBestSolution(g_best, g);
         update_v = UpdateTargetSize(g);
 
-        if (max_steps != 0 && step > max_steps)
+        if (max_steps >= 0 && step > max_steps)
         {
           return;
         }

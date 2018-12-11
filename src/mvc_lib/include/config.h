@@ -31,6 +31,7 @@ struct cfg
     static int node_dim;
     static int aux_dim;
     static int max_steps;
+    static bool use_randvc;
     static Dtype learning_rate;
     static Dtype l2_penalty;
     static Dtype momentum;    
@@ -75,6 +76,8 @@ struct cfg
                 momentum = atof(argv[i + 1]);
             if (strcmp(argv[i], "-save_dir") == 0)
                 save_dir = argv[i + 1];
+            if (strcmp(argv[i], "-use_randvc") == 0)
+                use_randvc = true;
         }
 
         if (n_step <= 0)
@@ -96,6 +99,7 @@ struct cfg
         std::cerr << "w_scale = " << w_scale << std::endl;
         std::cerr << "l2_penalty = " << l2_penalty << std::endl;
         std::cerr << "momentum = " << momentum << std::endl;        
+        std::cerr << "use_randvc = " << use_randvc << std::endl;        
     }
 };
 
