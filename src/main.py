@@ -113,7 +113,7 @@ if __name__ == '__main__':
             frac_fastwvc = 0.0
             for idx in range(n_valid):
                 frac += api.lib.Test(idx)
-                val_fastwvc, _ = api.FastWVC(True, idx, 0, 60, 2)
+                val_fastwvc, _ = api.FastWVC(True, idx, 0, 60, 2, False)
                 frac_fastwvc += val_fastwvc
             print 'iter', iter, 'eps', eps, 'average size of vc: ', frac / n_valid, 'FastWVC average:', frac_fastwvc / n_valid
             sys.stdout.flush()
