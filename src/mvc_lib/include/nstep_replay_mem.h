@@ -22,7 +22,7 @@ class NStepReplayMem
 public:
     static void Init(int memory_size);
 
-    static void Add(std::shared_ptr<Graph> g, 
+    static void Add(Graph g, 
                     int a_t, 
                     double r_t,
                     bool terminal);
@@ -33,7 +33,7 @@ public:
 
     static void Clear();
 
-    static std::vector< std::shared_ptr<Graph> > graphs;
+    static std::vector< Graph > graphs;
     static std::vector<int> actions;
     static std::vector<double> rewards;
     static std::vector<bool> terminals;

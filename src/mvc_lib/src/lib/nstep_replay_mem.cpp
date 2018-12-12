@@ -5,7 +5,7 @@
 
 #define max(x, y) (x > y ? x : y)
 
-std::vector< std::shared_ptr<Graph> > NStepReplayMem::graphs;
+std::vector< Graph > NStepReplayMem::graphs;
 std::vector<int> NStepReplayMem::actions;
 std::vector<double> NStepReplayMem::rewards;
 std::vector<bool> NStepReplayMem::terminals;
@@ -28,7 +28,7 @@ void NStepReplayMem::Init(int _memory_size)
     distribution = new std::uniform_int_distribution<int>(0, memory_size - 1);
 }
 
-void NStepReplayMem::Add(std::shared_ptr<Graph> g, 
+void NStepReplayMem::Add(Graph g, 
                         int a_t, 
                         double r_t,
                         bool terminal)
@@ -64,7 +64,7 @@ void NStepReplayMem::Add(IEnv* env)
         } else {
             cur_r = env->sum_rewards[i] - env->sum_rewards[i + cfg::n_step];
         }
-        Add(std::make_shared<Graph>(env->state_seq[i]), env->act_seq[i], cur_r, term_t);
+        Add(env->state_seq[i], env->act_seq[i], cur_r, term_t);
     }
 }
 
@@ -80,7 +80,7 @@ void NStepReplayMem::Sampling(int batch_size, ReplaySample& result)
     for (int i = 0; i < batch_size; ++i)
     {
         int idx = dist(generator) % count;
-        result.g_list[i] = graphs[idx];
+        result.g_list[i] = std::make_shared<Graph>(graphs[idx]);
         result.list_at[i] = actions[idx];
         result.list_rt[i] = rewards[idx];
         result.list_term[i] = terminals[idx];
