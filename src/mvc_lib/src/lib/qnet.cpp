@@ -97,17 +97,17 @@ void QNet::BuildNet()
     q_on_all = af< MatMul >(fg, {last_output, last_w});
 }
 
- int QNet::GetStatusInfo(std::shared_ptr<Graph> g, int& counter, std::vector<int>& idx_map)
+ int QNet::GetStatusInfo(Graph& g, int& counter, std::vector<int>& idx_map)
  {
-    idx_map.resize(g->num_nodes);
-    for (int i = 0; i < g->num_nodes; ++i)
+    idx_map.resize(g.num_nodes);
+    for (int i = 0; i < g.num_nodes; ++i)
         idx_map[i] = -1;
 
     counter = 0;
     int n = 0;
-    for (auto& p : g->edge_list)
+    for (auto& p : g.edge_list)
     {
-        if (g->v_in_c[p.first] || g->v_in_c[p.second])
+        if (g.v_in_c[p.first] || g.v_in_c[p.second])
         {
             counter++;
         } else {
@@ -123,7 +123,7 @@ void QNet::BuildNet()
 }
 
 void QNet::SetupGraphInput(std::vector<int>& idxes, 
-                           std::vector< std::shared_ptr<Graph> >& g_list, 
+                           std::vector< Graph >& g_list, 
                            const int* actions)
 {
     idx_map_list.resize(idxes.size());
@@ -134,13 +134,13 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
     int node_cnt = 0;
     for (size_t i = 0; i < idxes.size(); ++i)
     {
-        auto& g = g_list[idxes[i]];
+        auto* g = &g_list[idxes[i]];
         int counter;
         auto* aux_ptr = aux_feat.data->ptr + cfg::aux_dim * i;
         if (g->num_nodes)
             aux_ptr[0] = (Dtype)g->remove_cand.size() / (Dtype)g->num_nodes;
 
-        avail_act_cnt[i] = GetStatusInfo(g, counter, idx_map_list[i]);
+        avail_act_cnt[i] = GetStatusInfo(*g, counter, idx_map_list[i]);
         if (g->edge_list.size())
             aux_ptr[1] = (Dtype)counter / (Dtype)g->edge_list.size();
 
@@ -167,7 +167,7 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
     int edge_cnt = 0;
     for (size_t i = 0; i < idxes.size(); ++i)
     {                
-        auto& g = g_list[idxes[i]];
+        auto* g = &g_list[idxes[i]];
         auto& idx_map = idx_map_list[i];
 
         int t = 0;
@@ -224,7 +224,7 @@ void QNet::SetupGraphInput(std::vector<int>& idxes,
 }
 
 void QNet::SetupTrain(std::vector<int>& idxes, 
-                      std::vector< std::shared_ptr<Graph> >& g_list, 
+                      std::vector< Graph >& g_list, 
                       std::vector<int>& actions, 
                       std::vector<double>& target)
 {    
@@ -237,7 +237,7 @@ void QNet::SetupTrain(std::vector<int>& idxes,
 }
 
 void QNet::SetupPredAll(std::vector<int>& idxes, 
-                        std::vector< std::shared_ptr<Graph> >& g_list)
+                        std::vector< Graph >& g_list)
 {    
     SetupGraphInput(idxes, g_list, nullptr);
 }

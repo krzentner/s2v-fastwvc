@@ -19,7 +19,7 @@ public:
     static int make_action(int num_nodes, std::vector<double>& scores);
 
     static std::vector<IEnv*> env_list;
-    static std::vector< std::shared_ptr<Graph> > g_list;
+    static std::vector< Graph > g_list;
     static std::vector< std::vector<int>* > covered;
     static std::vector< std::vector<double>* > pred;
 

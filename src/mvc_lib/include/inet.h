@@ -21,12 +21,12 @@ public:
     virtual void BuildNet() = 0;
 
     virtual void SetupTrain(std::vector<int>& idxes, 
-                            std::vector< std::shared_ptr<Graph> >& g_list, 
+                            std::vector< Graph >& g_list, 
                             std::vector<int>& actions, 
                             std::vector<double>& target) = 0;
                             
     virtual void SetupPredAll(std::vector<int>& idxes, 
-                              std::vector< std::shared_ptr<Graph> >& g_list) = 0;
+                              std::vector< Graph >& g_list) = 0;
 
     void UseOldModel();
     void UseNewModel();

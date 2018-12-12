@@ -111,24 +111,24 @@ GSet::GSet()
     graph_pool.clear();
 }
 
-void GSet::InsertGraph(int gid, std::shared_ptr<Graph> graph)
+void GSet::InsertGraph(int gid, Graph graph)
 {
     assert(graph_pool.count(gid) == 0);
 
     graph_pool[gid] = graph;
 }
 
-std::shared_ptr<Graph> GSet::Get(int gid)
+Graph GSet::Get(int gid)
 {
     assert(graph_pool.count(gid));
     return graph_pool[gid];
 }
 
-std::shared_ptr<Graph> GSet::Sample()
+Graph GSet::Sample()
 {
     assert(graph_pool.size());
     int gid = rand() % graph_pool.size();
-    assert(graph_pool[gid]);
+    assert(graph_pool[gid].v_num);
     return graph_pool[gid];
 }
 

@@ -80,7 +80,7 @@ void NStepReplayMem::Sampling(int batch_size, ReplaySample& result)
     for (int i = 0; i < batch_size; ++i)
     {
         int idx = dist(generator) % count;
-        result.g_list[i] = std::make_shared<Graph>(graphs[idx]);
+        result.g_list[i] = graphs[idx];
         result.list_at[i] = actions[idx];
         result.list_rt[i] = rewards[idx];
         result.list_term[i] = terminals[idx];

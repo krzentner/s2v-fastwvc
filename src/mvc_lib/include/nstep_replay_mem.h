@@ -11,7 +11,7 @@ class ReplaySample
 {
 public:
 
-    std::vector< std::shared_ptr<Graph> > g_list;
+    std::vector< Graph > g_list;
     std::vector<int> list_at;
     std::vector<double> list_rt;
     std::vector<bool> list_term;

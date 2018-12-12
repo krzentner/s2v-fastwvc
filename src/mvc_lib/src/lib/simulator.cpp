@@ -6,7 +6,7 @@
 #include "config.h"
 
 std::vector<IEnv*> Simulator::env_list;
-std::vector< std::shared_ptr<Graph> > Simulator::g_list;
+std::vector< Graph > Simulator::g_list;
 std::vector< std::vector<double>* > Simulator::pred;
 
 std::default_random_engine Simulator::generator;
@@ -19,7 +19,7 @@ void Simulator::Init(int num_env)
     pred.resize(num_env);
     for (int i = 0; i < num_env; ++i)
     {
-        g_list[i] = nullptr;
+        g_list[i] = Graph();
         pred[i] = new std::vector<double>(cfg::max_n);
     }
 }
@@ -39,8 +39,8 @@ void Simulator::run_simulator(int num_seq, double eps)
                     n++;
                     NStepReplayMem::Add(env_list[i]);
                 }
-                env_list[i]->s0(*GSetTrain.Sample());
-                g_list[i] = std::make_shared<Graph>(env_list[i]->graph);
+                env_list[i]->s0(GSetTrain.Sample());
+                g_list[i] = env_list[i]->graph;
             }
         }
 
@@ -48,11 +48,11 @@ void Simulator::run_simulator(int num_seq, double eps)
             break;            
 
         bool random = false;
-        std::vector< std::shared_ptr<Graph> > graph_list;
+        std::vector< Graph > graph_list;
         if (distribution(generator) >= eps) {
             for (int i = 0; i < num_env; ++i)
             {
-              graph_list.push_back(std::make_shared<Graph>(env_list[i]->graph));
+              graph_list.push_back(env_list[i]->graph);
             }
             Predict(graph_list, pred);
         } else {

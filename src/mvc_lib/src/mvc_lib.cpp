@@ -65,7 +65,7 @@ int UpdateSnapshot()
 
 int InsertGraph(bool isTest, const int g_id, const int num_nodes, const int num_edges, const int* edges_from, const int* edges_to, const int* node_weights)
 {
-    auto g = std::make_shared<Graph>(num_nodes, num_edges, edges_from, edges_to, node_weights);
+    auto g = Graph(num_nodes, num_edges, edges_from, edges_to, node_weights);
     if (isTest)
         GSetTest.InsertGraph(g_id, g);
     else
@@ -122,8 +122,8 @@ double GetSolInner(Graph g, int* sol)
     int new_action;
     while (!test_env->isTerminal())
     {
-        std::vector< std::shared_ptr< Graph > > g_list;
-        g_list.push_back(std::make_shared<Graph>(test_env->graph));
+        std::vector< Graph > g_list;
+        g_list.push_back(test_env->graph);
         Predict(g_list, list_pred);
         new_action = arg_max(test_env->graph.num_nodes, list_pred[0]->data());
         test_env->step(new_action);
@@ -138,21 +138,21 @@ double GetSolInner(Graph g, int* sol)
 
 double Test(const int gid)
 {
-  return GetSolInner(*GSetTest.Get(gid), nullptr);
+  return GetSolInner(GSetTest.Get(gid), nullptr);
 }
 
 double GetSol(const int gid, int* sol)
 {
-  return GetSolInner(*GSetTrain.Get(gid), sol);
+  return GetSolInner(GSetTrain.Get(gid), sol);
 }
 
 double FastWVC(bool isTest, const int gid, int* sol, int timeout_seconds, int max_steps,
                bool use_randvc) {
   Graph g;
   if (isTest) {
-    g = *GSetTest.Get(gid);
+    g = GSetTest.Get(gid);
   } else {
-    g = *GSetTrain.Get(gid);
+    g = GSetTrain.Get(gid);
   }
   if (use_randvc) {
     RandVC(g);
