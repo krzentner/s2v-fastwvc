@@ -100,6 +100,7 @@ void Add(Graph &g, int v)
     g.dscore[v] = -g.dscore[v];
     g.now_weight += g.v_weight[v];
 
+    assert(g.index_in_remove_cand[v] == -1);
     g.index_in_remove_cand[v] = g.remove_cand.size();
     g.remove_cand.push_back(v);
 
@@ -259,108 +260,120 @@ int ChooseAddFromV(Graph &g)
     return add_v;
 }
 
-int ChooseAddV(Graph &g, int remove_v, int update_v = 0)
+int ChooseAddV(Graph &g, int remove_v, int update_v = -1)
 {
     int i, v;
-    int add_v = 0;
-    double improvemnt = 0.0;
+    int add_v = -1;
+    double improvemnt = -g.max_v_weight;
     double dscore_v;
+    bool config_checking_enabled = true;
 
-    int tmp_degree = g.v_degree[remove_v];
+    do {
+      int tmp_degree = g.v_degree[remove_v];
+      std::vector<int> *adjp = &g.v_adj[remove_v];
+      for (i = 0; i < tmp_degree; i++)
+      {
+          v = (*adjp)[i];
+          if (g.v_in_c[v] == 1)
+          {
+              continue;
+          }
+          if (g.conf_change[v] == 0 && config_checking_enabled)
+          {
+              continue;
+          }
+          dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
+          if (dscore_v > improvemnt)
+          {
+              improvemnt = dscore_v;
+              add_v = v;
+          }
+          else if (dscore_v == improvemnt)
+          {
+              if (g.time_stamp[v] < g.time_stamp[add_v])
+              {
+                  add_v = v;
+              }
+          }
+      }
+      v = remove_v;
+      if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
+      {
+          dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
+          if (dscore_v > improvemnt)
+          {
+              improvemnt = dscore_v;
+              add_v = v;
+          }
+          else if (dscore_v == improvemnt)
+          {
+              if (g.time_stamp[v] < g.time_stamp[add_v])
+              {
+                  add_v = v;
+              }
+          }
 
-    std::vector<int> *adjp = &g.v_adj[remove_v];
-    for (i = 0; i < tmp_degree; i++)
-    {
-        v = (*adjp)[i];
-        if (g.v_in_c[v] == 1)
-        {
-            continue;
-        }
-        if (g.conf_change[v] == 0)
-        {
-            continue;
-        }
-        dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
-        if (dscore_v > improvemnt)
-        {
-            improvemnt = dscore_v;
-            add_v = v;
-        }
-        else if (dscore_v == improvemnt)
-        {
-            if (g.time_stamp[v] < g.time_stamp[add_v])
-            {
-                add_v = v;
-            }
-        }
-    }
-    v = remove_v;
-    if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
-    {
-        dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
-        if (dscore_v > improvemnt)
-        {
-            improvemnt = dscore_v;
-            add_v = v;
-        }
-        else if (dscore_v == improvemnt)
-        {
-            if (g.time_stamp[v] < g.time_stamp[add_v])
-            {
-                add_v = v;
-            }
-        }
+      }
 
-    }
+      if (update_v != -1)
+      {
+          tmp_degree = g.v_degree[update_v];
+          adjp = &g.v_adj[update_v];
+          for (i = 0; i < tmp_degree; i++)
+          {
+              v = (*adjp)[i];
+              if (g.v_in_c[v] == 1)
+              {
+                  continue;
+              }
+              if (g.conf_change[v] == 0 && config_checking_enabled)
+              {
+                  continue;
+              }
+              dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
+              if (dscore_v > improvemnt)
+              {
+                  improvemnt = dscore_v;
+                  add_v = v;
+              }
+              else if (dscore_v == improvemnt)
+              {
+                  if (g.time_stamp[v] < g.time_stamp[add_v])
+                  {
+                      add_v = v;
+                  }
+              }
+          }
+          v = update_v;
+          if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
+          {
+              dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
+              if (dscore_v > improvemnt)
+              {
+                  improvemnt = dscore_v;
+                  add_v = v;
+              }
+              else if (dscore_v == improvemnt)
+              {
+                  if (g.time_stamp[v] < g.time_stamp[add_v])
+                  {
+                      add_v = v;
+                  }
+              }
+          }
 
-    if (update_v != 0)
-    {
-        tmp_degree = g.v_degree[update_v];
-        adjp = &g.v_adj[update_v];
-        for (i = 0; i < tmp_degree; i++)
-        {
-            v = (*adjp)[i];
-            if (g.v_in_c[v] == 1)
-            {
-                continue;
-            }
-            if (g.conf_change[v] == 0)
-            {
-                continue;
-            }
-            dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
-            if (dscore_v > improvemnt)
-            {
-                improvemnt = dscore_v;
-                add_v = v;
-            }
-            else if (dscore_v == improvemnt)
-            {
-                if (g.time_stamp[v] < g.time_stamp[add_v])
-                {
-                    add_v = v;
-                }
-            }
+      }
+      if (add_v == -1 && config_checking_enabled == false) {
+        for (int v2 = 0; v2 < g.v_num; v2++) {
+          if (g.v_in_c[v2] == 0) {
+            add_v = v2;
+          }
         }
-        v = update_v;
-        if (g.conf_change[v] == 1 && g.v_in_c[v] == 0)
-        {
-            dscore_v = (double)g.dscore[v] / (double)g.v_weight[v];
-            if (dscore_v > improvemnt)
-            {
-                improvemnt = dscore_v;
-                add_v = v;
-            }
-            else if (dscore_v == improvemnt)
-            {
-                if (g.time_stamp[v] < g.time_stamp[add_v])
-                {
-                    add_v = v;
-                }
-            }
-        }
-
-    }
+      }
+      config_checking_enabled = false;
+    } while(add_v == -1);
+    assert(add_v != -1);
+    assert(g.v_in_c[add_v] == 0);
 
     return add_v;
 }
@@ -523,6 +536,7 @@ void ConstructVC(Graph &g)
 
 void RandVC(Graph &g)
 {
+    CheckUncovStack(g);
     g.uncov_stack.clear();
     g.c_size = 0;
     g.now_weight = 0;
@@ -541,6 +555,10 @@ void RandVC(Graph &g)
             }
         }
     }
+    CheckUncovStack(g);
+    ResetRemoveCand(g);
+    CheckUncovStack(g);
+    CheckSolution(g);
 }
 
 int CheckSolution(Graph &g)
@@ -638,6 +656,19 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline, int m
     while (true)
     {
         UpdateBestSolution(g_best, g);
+
+        if (g.remove_cand.size() == 0) {
+          while (g.uncov_stack.size() > 0)
+          {
+            add_v = ChooseAddFromV(g);
+            Add(g, add_v);
+            UpdateEdgeWeight(g);
+            g.tabu_list[add_v] = 1;
+            g.time_stamp[add_v] = step;
+          }
+          continue;
+        }
+
         update_v = UpdateTargetSize(g);
 
         if (max_steps >= 0 && step > max_steps)
@@ -651,6 +682,18 @@ void LocalSearch(Graph &g_best, chrono::steady_clock::time_point deadline, int m
             {
                 return;
             }
+        }
+
+        if (g.remove_cand.size() == 0) {
+          while (g.uncov_stack.size() > 0)
+          {
+            add_v = ChooseAddFromV(g);
+            Add(g, add_v);
+            UpdateEdgeWeight(g);
+            g.tabu_list[add_v] = 1;
+            g.time_stamp[add_v] = step;
+          }
+          continue;
         }
 
         remove_v = ChooseRemoveV(g);
@@ -684,6 +727,8 @@ void CheckUncovStack(Graph &g)
       }
       assert(g.index_in_remove_cand[v] != -1);
       assert(g.remove_cand[g.index_in_remove_cand[v]] == v);
+    } else {
+      assert(g.index_in_remove_cand[v] == -1);
     }
   }
   for (size_t j = 0; j < g.uncov_stack.size(); j++) {
@@ -695,5 +740,9 @@ void CheckUncovStack(Graph &g)
     if (index != -1) {
       assert(g.uncov_stack[index] == e);
     }
+  }
+  for (int i = 0; i < g.remove_cand.size(); i++) {
+    int v = g.remove_cand[i];
+    assert(g.index_in_remove_cand[v] == i);
   }
 }

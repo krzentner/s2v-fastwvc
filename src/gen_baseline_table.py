@@ -40,7 +40,7 @@ api = main.MvcLib(sys.argv)
 
 column_headers = ['Graph Type-min_n-max_n vs FastWVC iterations'] + MAX_ITERATIONS
 n_ranges = ['{}-{}'.format(min_n, max_n) for min_n, max_n in SIZES]
-graph_type_names = [' '.join([word.capitalize() for word in t.split('_')]) for t in TYPES]
+graph_type_names = ['ER', 'Pow', 'BA']
 row_headers = ['{}-{}-{}'.format(g_type_name, n_range, use_randvc)
                for g_type_name in graph_type_names
                for use_randvc in ('R', 'C')
