@@ -15,7 +15,11 @@ MvcEnv::MvcEnv(double _norm) : IEnv(_norm),
 void MvcEnv::s0(Graph _g)
 {
     graph = _g;
-    ConstructVC(graph);
+    if (cfg::use_randvc) {
+        RandVC(graph);
+    } else {
+        ConstructVC(graph);
+    }
     current_step = 0;
     assert(graph.uncov_stack.size() == 0);
     recordCheckpoint();
