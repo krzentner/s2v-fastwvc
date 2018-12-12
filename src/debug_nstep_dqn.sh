@@ -41,6 +41,8 @@ mem_size=500000
 
 max_iter=10000
 
+use_randvc=1
+
 # folder to save the trained model
 save_dir=$result_root/embed-$embed_dim-nbp-$max_bp_iter-rh-$reg_hidden
 
@@ -71,5 +73,6 @@ lldb -o r -- python2.7 main.py \
     -momentum 0.9 \
     -l2 0.00 \
     -w_scale $w_scale \
+    -use_randvc $use_randvc\
     2>&1 | tee $save_dir/log-$min_n-${max_n}.txt
 #    -load_model $save_dir/iter_5.model \

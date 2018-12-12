@@ -40,6 +40,8 @@ mem_size=500000
 
 max_iter=100000
 
+use_randvc=0
+
 # folder to save the trained model
 save_dir=$result_root/embed-$embed_dim-nbp-$max_bp_iter-rh-$reg_hidden
 
@@ -63,4 +65,5 @@ python2.7 evaluate.py \
     -reg_hidden $reg_hidden \
     -momentum 0.9 \
     -l2 0.00 \
-    -w_scale $w_scale
+    -w_scale $w_scale \
+    -use_randvc $use_randvc 

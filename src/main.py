@@ -101,6 +101,8 @@ if __name__ == '__main__':
     eps_start = 1.0
     eps_end = 0.05
     eps_step = 10000.0
+    use_randvc = opt['use_randvc'] == '1'
+    baseline_name = 'R+FastWVC' if use_randvc else 'FastWVC'
     for iter in range(int(opt['max_iter'])):
         if iter and iter % 5000 == 0:
             gen_new_graphs(opt)
@@ -113,9 +115,9 @@ if __name__ == '__main__':
             frac_fastwvc = 0.0
             for idx in range(n_valid):
                 frac += api.lib.Test(idx)
-                val_fastwvc, _ = api.FastWVC(True, idx, 0, 60, 2, False)
+                val_fastwvc, _ = api.FastWVC(True, idx, 0, 60, 2, use_randvc)
                 frac_fastwvc += val_fastwvc
-            print 'iter', iter, 'eps', eps, 'average size of vc: ', frac / n_valid, 'FastWVC average:', frac_fastwvc / n_valid
+            print 'iter', iter, 'eps', eps, 'average size of vc: ', frac / n_valid, baseline_name, 'average:', frac_fastwvc / n_valid
             sys.stdout.flush()
             model_path = '%s/nrange_%d_%d_iter_%d.model' % (opt['save_dir'], int(opt['min_n']), int(opt['max_n']), iter)
             api.SaveModel(model_path)

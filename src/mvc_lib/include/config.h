@@ -77,7 +77,7 @@ struct cfg
             if (strcmp(argv[i], "-save_dir") == 0)
                 save_dir = argv[i + 1];
             if (strcmp(argv[i], "-use_randvc") == 0)
-                use_randvc = true;
+                use_randvc = atoi(argv[i + 1]) == 1;
         }
 
         if (n_step <= 0)

@@ -65,6 +65,11 @@ class MvcLib(object):
         p = ctypes.cast(path_to_model, ctypes.c_char_p)
         self.lib.SaveModel(p)
 
+    def Test(self, gid, maxn):
+        sol = (ctypes.c_int * (maxn + 10))()
+        val = self.lib.Test(gid, sol)
+        return val, sol
+
     def GetSol(self, gid, maxn):
         sol = (ctypes.c_int * (maxn + 10))()
         val = self.lib.GetSol(gid, sol)
